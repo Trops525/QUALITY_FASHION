@@ -1,0 +1,27 @@
+<%- include('header') %>
+<div class="auth-wrapper">
+    <div class="auth-box">
+        <h3>Đăng nhập</h3>
+        
+        <div class="text-center mb-3" style="font-size: 14px;">
+            <%- typeof message !== 'undefined' ? message : '' %>
+        </div>
+        
+        <form action="/dangnhap" method="POST">
+            <input type="hidden" name="returnUrl" value="<%= typeof returnUrl !== 'undefined' ? returnUrl : '' %>">
+            <div class="auth-form-group">
+                <label class="auth-label">Tên đăng nhập</label>
+                <input type="text" name="TenDangNhap" required class="auth-input" placeholder="Nhập tài khoản">
+            </div>
+            <div class="auth-form-group">
+                <label class="auth-label">Mật khẩu</label>
+                <input type="password" name="MatKhau" required class="auth-input" placeholder="Nhập mật khẩu">
+            </div>
+            <button type="submit" class="auth-btn">Đăng nhập</button>
+        </form>
+        <div class="text-center mt-4 font-13 text-secondary">
+            Chưa có tài khoản? <a href="/dangky" class="text-dark fw-bold text-decoration-none">Đăng ký ngay</a>
+        </div>
+    </div>
+</div>
+<%- include('footer') %>

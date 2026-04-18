@@ -1,0 +1,115 @@
+<%- include('header') %>
+
+<div class="header-page">
+    <h2><i class="fa fa-edit text-primary"></i> SỬA THÔNG TIN SẢN PHẨM</h2>
+</div>
+
+<div class="add-product-container">
+    <form action="/admin/sanpham/sua/<%= sp._id %>" method="POST" enctype="multipart/form-data">
+        
+        <div class="form-row">
+            <div class="form-col form-group">
+                <label>Mã sản phẩm:</label>
+                <input type="text" name="ma_san_pham" value="<%= sp.maSanPham %>" required>
+            </div>
+            <div class="form-col form-group">
+                <label>Tên sản phẩm:</label>
+                <input type="text" name="ten_san_pham" value="<%= sp.tenSanPham %>" required>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-col form-group">
+                <label>Danh mục sản phẩm:</label>
+                <select name="id_danh_muc" required>
+                    <% danhSachDM.forEach(dm => { %>
+                        <option value="<%= dm._id %>" <%= (sp.idDanhMuc && sp.idDanhMuc._id.toString() == dm._id.toString()) ? 'selected' : '' %>>
+                            <%= dm.TenDanhMuc %>
+                        </option>
+                    <% }) %>
+                </select>
+            </div>
+            <div class="form-col form-group">
+                <label>Giới tính:</label>
+                <select name="gioi_tinh">
+                    <option value="Nam" <%= sp.gioiTinh == 'Nam' ? 'selected' : '' %>>Nam</option>
+                    <option value="Nữ" <%= sp.gioiTinh == 'Nữ' ? 'selected' : '' %>>Nữ</option>
+                    <option value="Unisex" <%= sp.gioiTinh == 'Unisex' ? 'selected' : '' %>>Unisex</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-col form-group">
+                <label>Giá nhập (VNĐ):</label>
+                <input type="number" name="gia_nhap" value="<%= sp.giaNhap || 0 %>" required>
+            </div>
+            <div class="form-col form-group">
+                <label>Giá bán (VNĐ):</label>
+                <input type="number" name="gia_goc" value="<%= sp.donGia %>" required>
+            </div>
+            <div class="form-col form-group">
+                <label>Khuyến mãi (%):</label>
+                <input type="number" name="gia_khuyen_mai" value="<%= sp.tiLeGiamGia %>">
+            </div>
+        </div>
+
+        <div class="form-group upload-area" style="text-align: left; padding: 20px;">
+            <label>Ảnh sản phẩm (Chỉ chọn nếu muốn đổi):</label><br>
+            <span class="text-muted" style="font-size: 13px;">📁 Upload từ máy tính:</span>
+            <input type="file" id="hinh_anh" name="hinh_anh" accept="image/*" style="display: block; margin-top: 10px;">
+            
+            <div style="margin-top: 15px;">
+                <span class="text-muted" style="font-size: 13px;">Ảnh hiện tại:</span><br>
+                <img id="image-preview" src="<%= sp.hinhAnh || '/images/default.jpg' %>" style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px; border: 2px solid #dee2e6; margin-top: 10px;">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Mô tả chi tiết:</label>
+            <textarea name="mo_ta" rows="4"><%= sp.moTa %></textarea>
+        </div>
+
+        <div class="variant-section">
+            <h5 style="color: #0056b3; margin-bottom: 15px;">Size & Số lượng (Phân loại):</h5>
+            <div id="variant-container">
+                <% if (sp.bienThe && sp.bienThe.length > 0) { %>
+                    <% sp.bienThe.forEach(bt => { %>
+                        <div class="variant-row">
+                            <div class="form-col form-group" style="margin-bottom: 0;">
+                                <label>Màu sắc</label>
+                                <input type="text" name="mau_sac[]" class="input-mau-sac" value="<%= bt.mauSac %>" required>
+                            </div>
+                            <div class="form-col form-group" style="margin-bottom: 0;">
+                                <label>Size</label>
+                                <select name="kich_thuoc[]" class="select-kich-thuoc" required>
+                                    <option value="S" <%= bt.kichThuoc == 'S' ? 'selected' : '' %>>S</option>
+                                    <option value="M" <%= bt.kichThuoc == 'M' ? 'selected' : '' %>>M</option>
+                                    <option value="L" <%= bt.kichThuoc == 'L' ? 'selected' : '' %>>L</option>
+                                    <option value="XL" <%= bt.kichThuoc == 'XL' ? 'selected' : '' %>>XL</option>
+                                    <option value="XXL" <%= bt.kichThuoc == 'XXL' ? 'selected' : '' %>>XXL</option>
+                                    <option value="Freesize" <%= bt.kichThuoc == 'Freesize' ? 'selected' : '' %>>Freesize</option>
+                                </select>
+                            </div>
+                            <div class="form-col form-group" style="margin-bottom: 0;">
+                                <label>Số lượng</label>
+                                <input type="number" name="so_luong[]" class="input-so-luong" value="<%= bt.soLuong %>" required>
+                            </div>
+                            <button type="button" class="btn-remove-variant" onclick="this.parentElement.remove()"><i class="fa fa-times"></i></button>
+                        </div>
+                    <% }) %>
+                <% } %>
+            </div>
+            <button type="button" id="btn-add-variant" class="btn" style="background: #e9ecef; color: #333; margin-top: 10px;">
+                <i class="fa fa-plus"></i> Thêm phân loại
+            </button>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <button type="submit" class="btn-submit-form" style="width: auto; padding: 12px 40px;"><i class="fa fa-save"></i> CẬP NHẬT THAY ĐỔI</button><br>
+            <a href="/admin/sanpham" style="display: inline-block; margin-top: 15px; color: #6c757d; font-size: 14px; text-decoration: none;">← Hủy và quay lại danh sách</a>
+        </div>
+    </form>
+</div>
+
+<%- include('footer') %>

@@ -1,0 +1,123 @@
+<%- include('header') %>
+
+<div class="header-page">
+    <h1>Danh sách sản phẩm thời trang</h1>
+    <a href="/admin/sanpham/them" class="btn btn-add"><i class="fa fa-plus"></i> Thêm sản phẩm mới</a>
+</div>
+
+<div class="filter-section">
+    <form method="GET" class="filter-form">
+        <div class="filter-group large">
+            <label><i class="fa fa-search"></i> Tìm kiếm</label>
+            <input type="text" name="search" placeholder="Nhập tên hoặc mã sản phẩm..." value="<%= typeof query !== 'undefined' ? query.search : '' %>">
+        </div>
+        <div class="filter-group">
+            <label><i class="fa fa-folder"></i> Danh mục</label>
+            <select name="category">
+                <option value="">-- Tất cả danh mục --</option>
+                <% if (typeof danhSachDM !== 'undefined') { %>
+                    <% danhSachDM.forEach(dm => { %>
+                        <option value="<%= dm._id %>" <%= (typeof query !== 'undefined' && query.category == dm._id.toString()) ? 'selected' : '' %>><%= dm.TenDanhMuc %></option>
+                    <% }) %>
+                <% } %>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label><i class="fa fa-box-open"></i> Trạng thái tồn</label>
+            <select name="status">
+                <option value="">Tất cả</option>
+                <option value="sold" <%= (typeof query !== 'undefined' && query.status == 'sold') ? 'selected' : '' %>>Đã bán</option>
+                <option value="unsold" <%= (typeof query !== 'undefined' && query.status == 'unsold') ? 'selected' : '' %>>Chưa bán</option>
+                <option value="outstock" <%= (typeof query !== 'undefined' && query.status == 'outstock') ? 'selected' : '' %>>Hết hàng</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label><i class="fa fa-sort"></i> Sắp xếp</label>
+            <select name="sort">
+                <option value="">Tất cả</option>
+                <option value="newest" <%= (typeof query !== 'undefined' && query.sort == 'newest') ? 'selected' : '' %>>Mới nhất</option>
+                <option value="sale" <%= (typeof query !== 'undefined' && query.sort == 'sale') ? 'selected' : '' %>>Đang sale</option>
+                <option value="price_asc" <%= (typeof query !== 'undefined' && query.sort == 'price_asc') ? 'selected' : '' %>>Giá: Thấp đến Cao</option>
+                <option value="price_desc" <%= (typeof query !== 'undefined' && query.sort == 'price_desc') ? 'selected' : '' %>>Giá: Cao đến Thấp</option>
+            </select>
+        </div>
+        <button type="submit" class="btn" style="background: #3498db; color: white;"><i class="fa fa-filter"></i> Lọc</button>
+        <a href="/admin/sanpham" class="btn" style="background: #95a5a6; color: white;"><i class="fa fa-redo"></i> Đặt lại</a>
+    </form>
+</div>
+
+<div id="bulk-actions" class="bulk-actions-wrapper">
+    <form id="form-delete-bulk" method="POST" action="/admin/sanpham/xoanhieu" style="display: flex; gap: 10px;">
+        <div class="bulk-count-badge">
+            Đã chọn: <span id="count">0</span> sản phẩm
+        </div>
+        <button type="submit" class="btn btn-delete" data-confirm="Bạn có chắc chắn muốn xóa các sản phẩm đã chọn?">
+            <i class="fa fa-trash"></i> Xóa các mục đã chọn
+        </button>
+    </form>
+</div>
+
+<div class="table-container">
+    <table class="product-table">
+        <thead>
+            <tr>
+                <th class="text-center"><input type="checkbox" id="check-all"></th>
+                <th>ID</th>
+                <th>Ảnh</th>
+                <th>Tên sản phẩm</th>
+                <th>Giá gốc</th>
+                <th>Giảm (%)</th>
+                <th class="text-center">Lượt mua</th>
+                <th class="text-center">Size & Số lượng</th>
+                <th class="text-center">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% if (typeof danhSachSP !== 'undefined' && danhSachSP.length > 0) { %>
+                <% danhSachSP.forEach(sp => { %>
+                    <tr>
+                        <td class="text-center">
+                            <input type="checkbox" name="selected_ids" value="<%= sp._id %>" class="item-checkbox" form="form-delete-bulk">
+                        </td>
+                        <td style="font-size: 13px;">#<%= sp._id.toString().slice(-4) %></td>
+                        <td>
+                            <img src="<%= sp.hinhAnh || '/images/default.jpg' %>" alt="SP" class="product-img">
+                        </td>
+                        <td>
+                            <strong style="color: #212529;"><%= sp.tenSanPham %></strong><br>
+                            <small style="color:#6c757d;">Mã: <%= sp.maSanPham %></small>
+                        </td>
+                        <td><%= sp.donGia ? sp.donGia.toLocaleString('vi-VN') : 0 %>đ</td>
+                        <td><span style="color:#dc3545; font-weight: 500;">-<%= sp.tiLeGiamGia %>%</span></td>
+                        <td class="text-center"><%= sp.luotMua || 0 %></td>
+                        
+                        <td class="text-center" style="font-size: 13px; line-height: 1.6;">
+                            <% 
+                                let phanLoai = sp.bienThe ; 
+                            %>
+                            <% if (phanLoai && phanLoai.length > 0) { %>
+                                <% phanLoai.forEach(bt => { %>
+                                    <div>
+                                        <strong><%= bt.kichThuoc %></strong>: <%= bt.soLuong %>
+                                    </div>
+                                <% }) %>
+                            <% } else { %>
+                                <span class="text-muted" style="font-style: italic;">Chưa có dữ liệu</span>
+                            <% } %>
+                        </td>
+
+                        <td class="text-center">
+                            <a href="/admin/sanpham/sua/<%= sp._id %>" class="btn-action edit"><i class="fa fa-edit"></i> Sửa</a>
+                            <a href="/admin/sanpham/xoa/<%= sp._id %>" class="btn-action delete" data-confirm="Bạn có chắc chắn muốn xóa sản phẩm này?"><i class="fa fa-trash"></i> Xóa</a>
+                        </td>
+                    </tr>
+                <% }) %>
+            <% } else { %>
+                <tr><td colspan="9" style="text-align:center; padding: 40px; color: #6c757d;">Chưa có sản phẩm nào.</td></tr>
+            <% } %>
+        </tbody>
+    </table>
+</div>
+
+<%- include('footer') %>

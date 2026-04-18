@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof title !== 'undefined' ? title : 'QUALITY ADMIN' %></title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+
+<div class="sidebar">
+    <h2>QUALITY ADMIN</h2>
+    
+    <a href="/admin/sanpham" class="<%= (typeof currentPath !== 'undefined' && currentPath === '/admin/sanpham') ? 'active' : '' %>">
+        <i class="fa fa-box"></i> Quản lý sản phẩm
+    </a>
+    <% if (session && session.QuyenHan === 1) { %>
+        <a href="/admin/thongke" class="<%= (typeof currentPath !== 'undefined' && currentPath === '/admin/thongke') ? 'active' : '' %>">
+            <i class="fa fa-chart-line"></i> Thống kê doanh thu
+        </a>
+    <% } %>
+    <a href="/admin/danhmuc" class="<%= (typeof currentPath !== 'undefined' && currentPath === '/admin/danhmuc') ? 'active' : '' %>">
+        <i class="fa fa-list"></i> Quản lý danh mục
+    </a>
+    <a href="/admin/donhang" class="<%= (typeof currentPath !== 'undefined' && currentPath === '/admin/donhang') ? 'active' : '' %>">
+        <i class="fa fa-shopping-cart"></i> Quản lý đơn hàng
+    </a>
+    <a href="/admin/chat" class="<%= (typeof currentPath !== 'undefined' && currentPath === '/admin/chat') ? 'active' : '' %>">
+        <i class="fa fa-comments"></i> Quản lý Chat
+    </a>
+    <a href="/admin/cskh" class="<%= (typeof currentPath !== 'undefined' && currentPath === '/admin/cskh') ? 'active' : '' %>">
+        <i class="fa fa-envelope"></i> Quản lý CSKH
+    </a>
+    <a href="/admin/danhgia" class="<%= typeof currentPath !== 'undefined' && currentPath === '/admin/danhgia' ? 'active' : '' %>">
+        <i class="fa fa-star"></i> Quản lý đánh giá
+    </a>
+    <% if (session && session.QuyenHan === 1) { %>
+        <a href="/admin/nguoidung" class="<%= (typeof currentPath !== 'undefined' && currentPath === '/admin/nguoidung') ? 'active' : '' %>">
+            <i class="fa fa-users"></i> Quản lý người dùng
+        </a>
+    <% } %>
+
+    <a href="/" target="_blank" style="color: #ffc107; border-top: 1px solid #3d4144; margin-top: 20px;">
+        <i class="fa fa-external-link-alt"></i> Xem trang chủ
+    </a>
+    <a href="/dangxuat" style="margin-top: 50px; background: #212529;">
+        <i class="fa fa-sign-out-alt"></i> Đăng xuất
+    </a>
+</div>
+
+<div class="main-content">

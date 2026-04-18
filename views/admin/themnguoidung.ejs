@@ -1,0 +1,61 @@
+<%- include('header') %>
+
+<div class="header-page">
+    <h1>Tạo Tài Khoản Mới</h1>
+</div>
+
+<div style="background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); max-width: 500px; margin: 0 auto; margin-top: 20px;">
+    <form action="/admin/nguoidung/them" method="POST">
+        <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px;">Họ và Tên (*)</label>
+            <input type="text" name="HoTen" required placeholder="Nhập họ tên..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; outline: none;">
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px;">Tên Đăng Nhập (*)</label>
+            <input type="text" name="TenDangNhap" required placeholder="Ví dụ: nhanvien01" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; outline: none;">
+        </div>
+
+        <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+            <div style="flex: 1;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px;">Mật Khẩu (*)</label>
+                <input type="password" name="MatKhau" required placeholder="Nhập mật khẩu..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; outline: none;">
+            </div>
+            <div style="flex: 1;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px;">Xác nhận Mật Khẩu (*)</label>
+                <input type="password" name="XacNhanMatKhau" required placeholder="Nhập lại mật khẩu..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; outline: none;">
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+            <div style="flex: 1;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px;">Số Điện Thoại</label>
+                <input type="text" name="DienThoai" placeholder="Nhập SĐT..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; outline: none;">
+            </div>
+            <div style="flex: 1;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px;">Phân Quyền</label>
+                <select name="QuyenHan" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; outline: none; background: white;">
+                    <option value="2">Khách hàng</option>
+                    <option value="3" selected>Nhân viên</option>
+                    <option value="1">Quản trị (Admin)</option>
+                </select>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 25px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px;">Email</label>
+            <input type="email" name="Email" placeholder="Nhập email..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; outline: none;">
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+            <button type="submit" style="background: #198754; color: white; border: none; padding: 12px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; flex: 1; transition: 0.2s;">
+                <i class="fa fa-save"></i> Tạo tài khoản
+            </button>
+            <a href="/admin/nguoidung" style="background: #6c757d; color: white; text-decoration: none; padding: 12px 20px; border-radius: 4px; font-weight: bold; text-align: center; cursor: pointer; flex: 1; transition: 0.2s;">
+                Hủy bỏ
+            </a>
+        </div>
+    </form>
+</div>
+
+<%- include('footer') %>

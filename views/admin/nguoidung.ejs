@@ -1,0 +1,89 @@
+<%- include('header') %>
+
+<div class="header-page">
+    <h1>Quản lý Người Dùng</h1>
+</div>
+
+<div class="filter-section" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <form action="/admin/nguoidung" method="GET" class="filter-form" style="display: flex; gap: 10px; align-items: center; margin: 0;">
+        <input type="text" name="search" placeholder="Tìm theo tên, sđt, email, user..." 
+               value="<%= typeof query !== 'undefined' ? query.search : '' %>" 
+               style="height: 38px; padding: 0 10px; border: 1px solid #ccc; border-radius: 4px; width: 300px; outline: none; box-sizing: border-box;">
+        <button type="submit" style="height: 38px; background: #333; color: white; border: none; border-radius: 4px; cursor: pointer; padding: 0 20px; font-weight: bold; box-sizing: border-box; display: inline-flex; align-items: center; gap: 5px;">
+            <i class="fa fa-search"></i> Tìm kiếm
+        </button>
+        <% if (typeof query !== 'undefined' && query.search) { %>
+            <a href="/admin/nguoidung" style="color: #dc3545; text-decoration: none; font-size: 14px; margin-left: 5px;">Hủy lọc</a>
+        <% } %>
+    </form>
+
+    <a href="/admin/nguoidung/them" style="height: 38px; display: inline-flex; align-items: center; background: #198754; color: white; border: none; padding: 0 20px; border-radius: 4px; cursor: pointer; font-weight: bold; text-decoration: none;">
+        <i class="fa fa-plus" style="margin-right: 5px;"></i> Tạo tài khoản
+    </a>
+</div>
+
+<div class="table-container">
+    <table class="product-table">
+        <thead>
+            <tr>
+                <th style="width: 50px; text-align: center;">STT</th>
+                <th>Tài khoản</th>
+                <th>Liên hệ</th>
+                <th>Phân quyền</th>
+                <th class="text-center">Trạng thái</th>
+                <th class="text-center" style="width: 150px;">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% if (typeof danhSachND !== 'undefined' && danhSachND.length > 0) { %>
+                <% danhSachND.forEach((nd, index) => { %>
+                    <tr>
+                        <td class="text-center"><%= index + 1 %></td>
+                        <td>
+                            <strong style="color: #333; font-size: 15px;"><%= nd.HoTen %></strong><br>
+                            <small class="text-muted" style="font-size: 13px;">@<%= nd.TenDangNhap %></small>
+                        </td>
+                        <td style="font-size: 13px; line-height: 1.6;">
+                            <div><i class="fa fa-envelope" style="width:16px; color:#888;"></i> <%= nd.Email %></div>
+                            <div><i class="fa fa-phone" style="width:16px; color:#888;"></i> <%= nd.DienThoai %></div>
+                        </td>
+                        <td>
+                            <form action="/admin/nguoidung/quyen/<%= nd._id %>" method="POST" style="margin: 0;">
+                                <select name="QuyenHan" onchange="if(confirm('Bạn có chắc muốn đổi quyền của người này?')) { this.form.submit(); } else { this.value = '<%= nd.QuyenHan %>'; }" 
+                                    style="padding: 5px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; outline: none;"
+                                    <%= nd._id.toString() === session.MaNguoiDung.toString() ? 'disabled title="Bạn không thể tự đổi quyền"' : '' %>>
+                                    <option value="1" <%= nd.QuyenHan === 1 ? 'selected' : '' %>>Quản trị (Admin)</option>
+                                    <option value="3" <%= nd.QuyenHan === 3 ? 'selected' : '' %>>Nhân viên</option>
+                                    <option value="2" <%= nd.QuyenHan === 2 ? 'selected' : '' %>>Khách hàng</option>
+                                </select>
+                            </form>
+                        </td>
+                        <td class="text-center">
+                            <span style="display: inline-block; background: <%= nd.Khoa === 1 ? '#dc3545' : '#198754' %>; color: white; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold;">
+                                <%= nd.Khoa === 1 ? 'Bị khóa' : 'Hoạt động' %>
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <% if (nd._id.toString() !== session.MaNguoiDung.toString()) { %>
+                                <div class="action-buttons" style="justify-content: center;">
+                                    <a href="/admin/nguoidung/khoa/<%= nd._id %>" class="btn-sm" style="background: <%= nd.Khoa === 1 ? '#198754' : '#ffc107' %>; color: <%= nd.Khoa === 1 ? 'white' : '#000' %>; text-decoration: none; padding: 6px 12px;" onclick="return confirm('Bạn có chắc chắn muốn <%= nd.Khoa === 1 ? 'MỞ KHÓA' : 'KHÓA' %> tài khoản này?');">
+                                        <i class="fa <%= nd.Khoa === 1 ? 'fa-unlock' : 'fa-lock' %>"></i> <%= nd.Khoa === 1 ? 'Mở khóa' : 'Khóa' %>
+                                    </a>
+                                    <a href="/admin/nguoidung/xoa/<%= nd._id %>" class="btn-sm btn-delete" style="padding: 6px 12px; text-decoration: none;" onclick="return confirm('Bạn có chắc chắn muốn XÓA VĨNH VIỄN tài khoản này không?');">
+                                        <i class="fa fa-trash"></i> Xóa
+                                    </a>
+                                </div>
+                            <% } else { %>
+                                <span class="text-muted" style="font-size: 12px; font-style: italic;">Tài khoản của bạn</span>
+                            <% } %>
+                        </td>
+                    </tr>
+                <% }) %>
+            <% } else { %>
+                <tr><td colspan="6" style="text-align: center; padding: 40px; color: #888;">Không tìm thấy người dùng nào.</td></tr>
+            <% } %>
+        </tbody>
+    </table>
+</div>
+
+<%- include('footer') %>

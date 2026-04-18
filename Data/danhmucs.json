@@ -1,0 +1,11 @@
+[
+  { "_id": { "$oid": "60d5ec49c123456789012301" }, "tenDanhMuc": "Áo Thun Nam" },
+  { "_id": { "$oid": "60d5ec49c123456789012302" }, "tenDanhMuc": "Quần Short Nam" },
+  { "_id": { "$oid": "60d5ec49c123456789012303" }, "tenDanhMuc": "Áo Sơ Mi Nam" },
+  { "_id": { "$oid": "60d5ec49c123456789012304" }, "tenDanhMuc": "Áo Polo Nam" },
+  { "_id": { "$oid": "60d5ec49c123456789012305" }, "tenDanhMuc": "Quần Dài Nam" },
+  { "_id": { "$oid": "60d5ec49c123456789012306" }, "tenDanhMuc": "Áo Thun / Áo Thể Thao Nữ" },
+  { "_id": { "$oid": "60d5ec49c123456789012307" }, "tenDanhMuc": "Váy / Đầm Nữ" },
+  { "_id": { "$oid": "60d5ec49c123456789012308" }, "tenDanhMuc": "Quần Dài / Short Nữ" },
+  { "_id": { "$oid": "60d5ec49c123456789012309" }, "tenDanhMuc": "Phụ Kiện" }
+]

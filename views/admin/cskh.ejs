@@ -1,0 +1,118 @@
+<%- include('header') %>
+
+<div class="header-page">
+    <h1>Quản lý Bài đăng CSKH (Câu hỏi thường gặp)</h1>
+</div>
+
+<!-- FORM THÊM / SỬA -->
+<div style="background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px;">
+    <h3 id="formTitle" style="margin-top: 0; font-size: 16px; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">Thêm Bài Đăng / Câu Hỏi Mới</h3>
+    <form id="cskhForm" action="/admin/cskh/them" method="POST">
+        <input type="hidden" name="id" id="faqId">
+        
+        <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+            <div style="flex: 1;">
+                <label style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 5px;">Nhóm / Danh mục</label>
+                <input type="text" name="DanhMuc_faq" id="DanhMuc" required placeholder="VD: Đặt hàng, Thanh toán..." style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; outline: none;">
+            </div>
+            <div style="flex: 2;">
+                <label style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 5px;">Câu hỏi / Chủ đề</label>
+                <input type="text" name="CauHoi" id="CauHoi" required placeholder="Nhập câu hỏi..." style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; outline: none;">
+            </div>
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <label style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 5px;">Nội dung trả lời</label>
+            <textarea name="TraLoi" id="TraLoi" rows="4" required placeholder="Nhập nội dung giải đáp..." style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; outline: none;"></textarea>
+        </div>
+        
+        <div style="display: flex; gap: 15px; align-items: flex-end;">
+            <div style="width: 120px;">
+                <label style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 5px;">Thứ tự hiển thị</label>
+                <input type="number" name="ThuTu" id="ThuTu" value="1" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; outline: none;">
+            </div>
+            <div style="width: 150px;">
+                <label style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 5px;">Trạng thái</label>
+                <select name="TrangThai" id="TrangThai" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; outline: none;">
+                    <option value="1">Hiển thị (Khách thấy)</option>
+                    <option value="0">Ẩn (Lưu nháp)</option>
+                </select>
+            </div>
+            <div>
+                <button type="submit" id="btnSubmit" style="background: #198754; color: white; border: none; padding: 9px 25px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s;">
+                    <i class="fa fa-plus"></i> Thêm mới
+                </button>
+                <button type="button" id="btnCancel" style="display: none; background: #6c757d; color: white; border: none; padding: 9px 20px; border-radius: 4px; cursor: pointer; margin-left: 10px; transition: 0.2s;" onclick="window.location.reload()">Hủy sửa</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- BẢNG DANH SÁCH -->
+<div class="table-container">
+    <table class="product-table">
+        <thead>
+            <tr>
+                <th style="width: 50px; text-align: center;">STT</th>
+                <th>Danh mục</th>
+                <th>Câu hỏi / Chủ đề</th>
+                <th>Nội dung trả lời</th>
+                <th style="width: 80px; text-align: center;">Thứ tự</th>
+                <th class="text-center" style="width: 100px;">Trạng thái</th>
+                <th class="text-center" style="width: 120px;">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% if (typeof danhSachFAQ !== 'undefined' && danhSachFAQ.length > 0) { %>
+                <% danhSachFAQ.forEach((item, index) => { %>
+                    <tr>
+                        <td class="text-center"><%= index + 1 %></td>
+                        <td><strong style="color: #0d6efd;"><%= item.DanhMuc %></strong></td>
+                        <td><strong><%= item.CauHoi %></strong></td>
+                        <td style="max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="<%= item.TraLoi %>">
+                            <%= item.TraLoi %>
+                        </td>
+                        <td class="text-center"><%= item.ThuTu %></td>
+                        <td class="text-center">
+                            <span style="display: inline-block; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; background: <%= item.TrangThai === 1 ? '#198754' : '#6c757d' %>; color: white;">
+                                <%= item.TrangThai === 1 ? 'Hiển thị' : 'Đang ẩn' %>
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <div class="action-buttons" style="justify-content: center; flex-direction: column; gap: 5px;">
+                                <button type="button" class="btn-sm" style="background: #0dcaf0; color: #fff; border: none; cursor: pointer; width: 100%;" 
+                                        data-id="<%= item._id %>" data-danhmuc="<%= item.DanhMuc %>" data-cauhoi="<%= item.CauHoi %>" 
+                                        data-traloi="<%= item.TraLoi %>" data-thutu="<%= item.ThuTu %>" data-trangthai="<%= item.TrangThai %>"
+                                        onclick="editFAQ(this)"><i class="fa fa-edit"></i> Sửa</button>
+                                <a href="/admin/cskh/xoa/<%= item._id %>" class="btn-sm btn-delete" style="text-decoration: none;" onclick="return confirm('Bạn chắc chắn muốn xóa phản hồi này?');"><i class="fa fa-trash"></i> Xóa</a>
+                            </div>
+                        </td>
+                    </tr>
+                <% }) %>
+            <% } else { %>
+                <tr><td colspan="7" style="text-align: center; padding: 40px; color: #888;">Chưa có bài đăng nào.</td></tr>
+            <% } %>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function editFAQ(btn) {
+        document.getElementById('faqId').value = btn.getAttribute('data-id');
+        document.getElementById('DanhMuc').value = btn.getAttribute('data-danhmuc');
+        document.getElementById('CauHoi').value = btn.getAttribute('data-cauhoi');
+        document.getElementById('TraLoi').value = btn.getAttribute('data-traloi');
+        document.getElementById('ThuTu').value = btn.getAttribute('data-thutu');
+        document.getElementById('TrangThai').value = btn.getAttribute('data-trangthai');
+        
+        document.getElementById('formTitle').innerText = 'Sửa Bài Đăng / Câu Hỏi';
+        document.getElementById('btnSubmit').innerHTML = '<i class="fa fa-save"></i> Cập nhật';
+        document.getElementById('btnSubmit').style.background = '#ffc107';
+        document.getElementById('btnSubmit').style.color = '#000';
+        document.getElementById('cskhForm').action = '/admin/cskh/sua';
+        document.getElementById('btnCancel').style.display = 'inline-block';
+        window.scrollTo({ top: 0, behavior: 'smooth' }); // Tự cuộn mượt lên form
+    }
+</script>
+
+<%- include('footer') %>

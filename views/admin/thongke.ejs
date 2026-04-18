@@ -1,0 +1,62 @@
+<%- include('header') %>
+
+<div class="header-page">
+    <h2><i class="fa fa-chart-line text-primary"></i> BÁO CÁO DOANH THU & LỢI NHUẬN</h2>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card revenue">
+        <small class="text-muted">TỔNG DOANH THU</small>
+        <h3><%= tongDoanhThu.toLocaleString('vi-VN') %>đ</h3>
+    </div>
+    <div class="stat-card cost">
+        <small class="text-muted">TỔNG GIÁ VỐN</small>
+        <h3><%= tongGiaVon.toLocaleString('vi-VN') %>đ</h3>
+    </div>
+    <div class="stat-card profit">
+        <small class="text-muted">LỢI NHUẬN THUẦN</small>
+        <h3><%= tongLoiNhuan.toLocaleString('vi-VN') %>đ</h3>
+    </div>
+    <div class="stat-card orders">
+        <small class="text-muted">ĐƠN HOÀN TẤT</small>
+        <h3><%= tongDonHang %> đơn (<%= tongSanPhamDaBan %> SP)</h3>
+    </div>
+</div>
+
+<div class="top-products-container">
+    <h4 class="section-title">Top 10 Sản Phẩm Bán Chạy Nhất</h4>
+    <table class="table-top-products">
+        <thead>
+            <tr>
+                <th width="10%">XẾP HẠNG</th>
+                <th width="45%">SẢN PHẨM</th>
+                <th width="20%" class="text-center">SỐ LƯỢNG BÁN</th>
+                <th width="25%" class="text-right">DOANH THU MANG LẠI</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% if (typeof top10SanPham !== 'undefined' && top10SanPham.length > 0) { %>
+                <% top10SanPham.forEach((sp, index) => { %>
+                    <tr>
+                        <td class="rank rank-<%= index + 1 %>">#<%= index + 1 %></td>
+                        <td class="product-name"><%= sp.tenSanPham %></td>
+                        <td class="text-center">
+                            <span class="badge-qty"><%= sp.soLuongBan %></span>
+                        </td>
+                        <td class="text-right text-success fw-bold">
+                            <%= sp.doanhThuMangLai.toLocaleString('vi-VN') %>đ
+                        </td>
+                    </tr>
+                <% }) %>
+            <% } else { %>
+                <tr>
+                    <td colspan="4" class="text-center text-muted fst-italic p-4">
+                        Chưa có sản phẩm nào được giao thành công trong tháng này.
+                    </td>
+                </tr>
+            <% } %>
+        </tbody>
+    </table>
+</div>
+
+<%- include('footer') %>

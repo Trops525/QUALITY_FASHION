@@ -1,0 +1,128 @@
+<%- include('header') %>
+<div class="container my-5">
+    <div class="row">
+        <aside class="col-lg-3 col-md-4 border-end pe-md-4 mb-4">
+            <div class="sticky-top-filter">
+                <h5 class="fw-bold text-uppercase mb-4">Lọc Sản Phẩm</h5>
+                <form id="filterForm" method="GET" action="/sanpham">
+                    <% if(query.q) { %><input type="hidden" name="q" value="<%= query.q %>"><% } %>
+                    <input type="hidden" id="hiddenSort" name="sort" value="<%= query.sort || 'tat-ca' %>">
+
+                    <h6 class="fw-bold mb-3">Danh mục</h6>
+                    <div class="mb-4 border-bottom pb-3">
+                        <% danhmuc.forEach(dm => { %>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input border-dark shadow-none" type="radio" name="danhMuc" id="dm-<%= dm._id %>" value="<%= dm._id %>" <%= query.danhMuc == dm._id ? 'checked' : '' %>>
+                                <label class="form-check-label" for="dm-<%= dm._id %>"><%= dm.tenDanhMuc || dm.TenDanhMuc %></label>
+                            </div>
+                        <% }) %>
+                    </div>
+
+                    <h6 class="fw-bold mb-3">Giới tính</h6>
+                    <div class="mb-4 border-bottom pb-3">
+                        <% ['Nam', 'Nữ'].forEach(gd => { %>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input border-dark shadow-none" type="radio" name="gioiTinh" id="gd-<%= gd %>" value="<%= gd %>" <%= query.gioiTinh == gd ? 'checked' : '' %>>
+                                <label class="form-check-label" for="gd-<%= gd %>"><%= gd %></label>
+                            </div>
+                        <% }) %>
+                    </div>
+
+                    <h6 class="fw-bold mb-3">Màu sắc</h6>
+                    <div class="mb-4 border-bottom pb-3">
+                        <% ['Đen', 'Trắng', 'Đỏ', 'Xanh', 'Be', 'Xám'].forEach(cl => { %>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input border-dark shadow-none" type="radio" name="mauSac" id="cl-<%= cl %>" value="<%= cl %>" <%= query.mauSac == cl ? 'checked' : '' %>>
+                                <label class="form-check-label" for="cl-<%= cl %>"><%= cl %></label>
+                            </div>
+                        <% }) %>
+                    </div>
+
+                    <h6 class="fw-bold mb-3">Khoảng giá</h6>
+                    <div class="mb-4 border-bottom pb-3">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input border-dark shadow-none" type="radio" name="khoangGia" id="p1" value="duoi-200k" <%= query.khoangGia == 'duoi-200k' ? 'checked' : '' %>>
+                            <label class="form-check-label" for="p1">Dưới 200.000đ</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input border-dark shadow-none" type="radio" name="khoangGia" id="p2" value="tren-200k" <%= query.khoangGia == 'tren-200k' ? 'checked' : '' %>>
+                            <label class="form-check-label" for="p2">Trên 200.000đ</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input border-dark shadow-none" type="radio" name="khoangGia" id="p3" value="tren-400k" <%= query.khoangGia == 'tren-400k' ? 'checked' : '' %>>
+                            <label class="form-check-label" for="p3">Trên 400.000đ</label>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 mb-4">
+                        <button type="submit" class="btn btn-dark fw-bold">Áp dụng bộ lọc</button>
+                        <a href="/sanpham" class="btn btn-outline-secondary">Xóa toàn bộ</a>
+                    </div>
+                </form>
+            </div>
+        </aside>
+
+        <main class="col-lg-9 col-md-8 px-md-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom gap-3">
+                <h5 class="fw-bold mb-0">Sản phẩm <span class="text-muted small fw-normal ms-2">(Hiển thị <%= sanpham.length %> / <%= totalProducts %>)</span></h5>
+                <div class="d-flex align-items-center gap-2">
+                    <label class="fw-bold mb-0 text-nowrap">Phân loại:</label>
+                    <select class="form-select w-auto border-dark shadow-sm" onchange="applySort(this.value)">
+                        <option value="tat-ca" <%= (!query.sort || query.sort == 'tat-ca') ? 'selected' : '' %>>Tất cả</option>
+                        <option value="moi-nhat" <%= query.sort == 'moi-nhat' ? 'selected' : '' %>>Mới nhất</option>
+                        <option value="ban-chay" <%= query.sort == 'ban-chay' ? 'selected' : '' %>>Bán chạy</option>
+                        <option value="dang-sale" <%= query.sort == 'dang-sale' ? 'selected' : '' %>>Đang Sale</option>
+                        <option value="gia-thap-cao" <%= query.sort == 'gia-thap-cao' ? 'selected' : '' %>>Giá: Thấp - Cao</option>
+                        <option value="gia-cao-thap" <%= query.sort == 'gia-cao-thap' ? 'selected' : '' %>>Giá: Cao - Thấp</option>
+                    </select>
+                </div>
+            </div>
+
+            <% if (sanpham && sanpham.length > 0) { %>
+                <div class="row row-cols-2 row-cols-md-3 g-4 mb-5">
+                    <% sanpham.forEach(sp => { 
+                        let gia_goc = sp.donGia || 0;
+                        let ti_le = sp.tiLeGiamGia || 0;
+                        let gia_ban = gia_goc - (gia_goc * ti_le / 100);
+                    %>
+                        <div class="col">
+                            <div class="product-item-card h-100 position-relative d-flex flex-column">
+                                <% if(ti_le > 0) { %>
+                                    <span class="badge-sale">-<%= ti_le %>%</span>
+                                <% } %>
+                                <a href="/sanpham/chitiet/<%= sp._id %>" class="d-block bg-light">
+                                    <img src="<%= sp.hinhAnh || '/images/default.jpg' %>"
+                                    class="w-100 product-img-thumb" alt="Sản phẩm">                                </a>
+                                
+                                <div class="p-3 d-flex flex-column flex-grow-1 bg-white">
+                                    <a href="/sanpham/chitiet/<%= sp._id %>" class="text-decoration-none text-dark">
+                                        <h6 class="product-title-grid font-15 mb-2"><%= sp.tenSanPham %></h6>
+                                    </a>
+                                    
+                                    <div class="mt-auto">
+                                        <span class="text-danger fw-bold font-15"><%= gia_ban.toLocaleString('vi-VN') %> đ</span>
+                                        <% if(ti_le > 0) { %>
+                                            <span class="text-muted text-decoration-line-through ms-2 font-13"><%= gia_goc.toLocaleString('vi-VN') %> đ</span>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+
+                <% if(totalPages > 1) { %>
+                    <%- include('pagination', { pagType: 'form', currentPage: currentPage, totalPages: totalPages }) %>
+                <% } %>
+                <% } else { %>
+                <div class="col-12 text-center py-5">
+                    <i class="bi bi-search fs-1 text-muted"></i>
+                    <p class="text-muted mt-3">Không tìm thấy sản phẩm nào phù hợp với bộ lọc.</p>
+                </div>
+            <% } %>
+            
+            <input type="hidden" id="maxPagesData" value="<%= totalPages %>">
+        </main>
+    </div>
+</div>
+<%- include('footer') %>

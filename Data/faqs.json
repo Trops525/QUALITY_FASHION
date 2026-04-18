@@ -1,0 +1,79 @@
+[
+  {
+    "DanhMuc": "MuaHang",
+    "CauHoi": "Làm thế nào để đặt hàng trên Website?",
+    "TraLoi": "Để đặt hàng, bạn chỉ cần chọn sản phẩm yêu thích, chọn size mong muốn, bấm \"Thêm vào giỏ hàng\" và điền thông tin thanh toán là hoàn tất nhé!",
+    "TrangThai": 1,
+    "ThuTu": 1
+  },
+  {
+    "DanhMuc": "MuaHang",
+    "CauHoi": "Cần nhận gấp đơn hàng trong ngày thì làm như thế nào?",
+    "TraLoi": "Đối với đơn hàng trong nội thành TP. HCM và Hà Nội (giờ hành chính), bạn vui lòng liên hệ hotline để được hỗ trợ giao hàng hỏa tốc.",
+    "TrangThai": 1,
+    "ThuTu": 2
+  },
+  {
+    "DanhMuc": "MuaHang",
+    "CauHoi": "Tôi có thể thanh toán bằng phương thức nào?",
+    "TraLoi": "Chúng tôi hỗ trợ thanh toán COD (thanh toán khi nhận hàng), chuyển khoản ngân hàng, và các ví điện tử như Momo, ZaloPay.",
+    "TrangThai": 1,
+    "ThuTu": 3
+  },
+  {
+    "DanhMuc": "MuaHang",
+    "CauHoi": "Làm sao để áp dụng mã giảm giá?",
+    "TraLoi": "Khi thanh toán, bạn nhập mã giảm giá vào ô \"Mã khuyến mãi\" và bấm \"Áp dụng\" để giảm giá tự động.",
+    "TrangThai": 1,
+    "ThuTu": 4
+  },
+  {
+    "DanhMuc": "DonHang",
+    "CauHoi": "Làm sao để biết đơn hàng của tôi đã được xác nhận?",
+    "TraLoi": "Sau khi đặt hàng thành công, hệ thống sẽ tự động chuyển bạn đến trang quản lý Đơn hàng. Bạn có thể theo dõi tiến trình đơn hàng tại đó.",
+    "TrangThai": 1,
+    "ThuTu": 1
+  },
+  {
+    "DanhMuc": "DonHang",
+    "CauHoi": "Thời gian giao hàng là bao lâu?",
+    "TraLoi": "Đơn hàng nội thành TP.HCM/Hà Nội: 1-2 ngày. Các tỉnh khác: 3-5 ngày. Thời gian có thể thay đổi tùy vào địa điểm và số lượng hàng.",
+    "TrangThai": 1,
+    "ThuTu": 2
+  },
+  {
+    "DanhMuc": "DonHang",
+    "CauHoi": "Tôi có thể hủy đơn hàng không?",
+    "TraLoi": "Bạn có thể hủy đơn hàng trong vòng 24h sau khi đặt. Sau thời gian này, vui lòng liên hệ hotline để được hỗ trợ.",
+    "TrangThai": 1,
+    "ThuTu": 3
+  },
+  {
+    "DanhMuc": "DoiTra",
+    "CauHoi": "Tôi có thể đổi hàng trong bao nhiêu ngày?",
+    "TraLoi": "Quality hỗ trợ bạn đổi trả sản phẩm trong vòng 7 ngày kể từ ngày nhận hàng với điều kiện tem mác còn nguyên vẹn.",
+    "TrangThai": 1,
+    "ThuTu": 1
+  },
+  {
+    "DanhMuc": "DoiTra",
+    "CauHoi": "Làm thế nào để đổi/trả hàng?",
+    "TraLoi": "Bạn vui lòng gói lại sản phẩm cẩn thận và gửi về địa chỉ kho của Quality. Sau khi nhận được hàng, chúng tôi sẽ xử lý đổi size/màu hoặc hoàn tiền cho bạn.",
+    "TrangThai": 1,
+    "ThuTu": 2
+  },
+  {
+    "DanhMuc": "DoiTra",
+    "CauHoi": "Phí đổi trả là bao nhiêu?",
+    "TraLoi": "Đổi size/màu trong cùng sản phẩm: miễn phí. Đổi sang sản phẩm khác hoặc hoàn tiền: phí vận chuyển 2 chiều do khách hàng chịu.",
+    "TrangThai": 1,
+    "ThuTu": 3
+  },
+  {
+    "DanhMuc": "DoiTra",
+    "CauHoi": "Sản phẩm bị lỗi thì sao?",
+    "TraLoi": "Nếu sản phẩm bị lỗi do nhà sản xuất, chúng tôi sẽ đổi mới hoàn toàn miễn phí và chịu toàn bộ chi phí vận chuyển.",
+    "TrangThai": 1,
+    "ThuTu": 4
+  }
+]

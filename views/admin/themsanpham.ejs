@@ -1,0 +1,112 @@
+<%- include('header') %>
+
+<div class="header-page">
+    <h1 style="font-size: 24px; color: #333;"><i class="fa fa-plus-circle text-success" style="margin-right: 10px;"></i>Thêm Sản Phẩm Mới</h1>
+    <a href="/admin/sanpham" class="btn" style="background: #6c757d; color: white;"><i class="fa fa-arrow-left"></i> Quay lại</a>
+</div>
+
+<div class="add-product-container">
+    <form action="/admin/sanpham/them" method="POST" enctype="multipart/form-data">
+        
+        <h4 style="margin-bottom: 20px; color: #0d6efd; border-bottom: 2px solid #f1f3f5; padding-bottom: 10px;">1. Thông tin chung</h4>
+        
+        <div class="form-row">
+            <div class="form-col form-group">
+                <label>Mã sản phẩm (*)</label>
+                <input type="text" name="ma_san_pham" placeholder="VD: PK_TUITRONG" required>
+            </div>
+            <div class="form-col form-group">
+                <label>Tên sản phẩm (*)</label>
+                <input type="text" name="ten_san_pham" placeholder="Nhập tên sản phẩm..." required>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-col form-group">
+                <label>Danh mục (*)</label>
+                <select name="id_danh_muc" required>
+                    <option value="">-- Chọn danh mục --</option>
+                    <% if (typeof danhSachDM !== 'undefined') { %>
+                        <% danhSachDM.forEach(dm => { %>
+                            <option value="<%= dm._id %>"><%= dm.TenDanhMuc %></option>
+                        <% }) %>
+                    <% } %>
+                </select>
+            </div>
+            <div class="form-col form-group">
+                <label>Giới tính</label>
+                <select name="gioi_tinh">
+                    <option value="Nam">Nam</option>
+                    <option value="Nữ">Nữ</option>
+                    <option value="Unisex">Unisex</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-col form-group">
+                <label>Giá nhập (VNĐ)</label>
+                <input type="number" name="gia_nhap" placeholder="VD: 150000" required>
+            </div>
+            <div class="form-col form-group">
+                <label>Giá bán (VNĐ)</label>
+                <input type="number" name="gia_goc" placeholder="VD: 300000" required>
+            </div>
+            <div class="form-col form-group">
+                <label>Khuyến mãi (%)</label>
+                <input type="number" name="gia_khuyen_mai" value="0">
+            </div>
+        </div>
+
+        <h4 style="margin-top: 30px; margin-bottom: 20px; color: #0d6efd; border-bottom: 2px solid #f1f3f5; padding-bottom: 10px;">2. Hình ảnh & Mô tả</h4>
+        
+        <div class="upload-area">
+            <i class="fa fa-cloud-upload-alt" style="font-size: 40px; color: #6c757d; margin-bottom: 15px;"></i>
+            <h5 style="margin-bottom: 10px;">Tải ảnh sản phẩm lên</h5>
+            <input type="file" id="hinh_anh" name="hinh_anh" accept="image/*" required style="display: block; margin: 0 auto;">
+            <img id="image-preview" src="" style="display: none; width: 120px; height: 120px; object-fit: cover; border-radius: 8px; margin: 15px auto 0; border: 2px solid #0d6efd;">
+        </div>
+
+        <div class="form-group">
+            <label>Mô tả chi tiết</label>
+            <textarea name="mo_ta" rows="4" placeholder="Nhập mô tả sản phẩm (chất liệu, kiểu dáng...)"></textarea>
+        </div>
+
+        <h4 style="margin-top: 30px; margin-bottom: 20px; color: #0d6efd; border-bottom: 2px solid #f1f3f5; padding-bottom: 10px;">3. Phân loại Màu sắc, Size & Số lượng</h4>
+        
+        <div class="variant-section">
+            <div id="variant-container">
+                <div class="variant-row">
+                    <div class="form-col form-group" style="margin-bottom: 0;">
+                        <label>Màu sắc:</label>
+                        <input type="text" name="mau_sac[]" class="input-mau-sac" placeholder="VD: Đen, Trắng..." required>
+                    </div>
+                    <div class="form-col form-group" style="margin-bottom: 0;">
+                        <label>Kích thước (Size):</label>
+                        <select name="kich_thuoc[]" class="select-kich-thuoc" required>
+                            <option value="">-- Chọn Size --</option>
+                            <option value="S">S</option>
+                            <option value="M">M</option>
+                            <option value="L">L</option>
+                            <option value="XL">XL</option>
+                            <option value="XXL">XXL</option>
+                            <option value="Freesize">Freesize</option>
+                        </select>
+                    </div>
+                    <div class="form-col form-group" style="margin-bottom: 0;">
+                        <label>Số lượng kho:</label>
+                        <input type="number" name="so_luong[]" class="input-so-luong" value="10" min="0" required>
+                    </div>
+                    <div style="width: 44px;"></div> </div>
+            </div>
+            
+            <button type="button" id="btn-add-variant" class="btn" style="background: #e9ecef; color: #333; margin-top: 10px;">
+                <i class="fa fa-plus"></i> Thêm phân loại
+            </button>
+        </div>
+
+        <button type="submit" class="btn-submit-form"><i class="fa fa-save"></i> LƯU SẢN PHẨM</button>
+    </form>
+</div>
+
+<%- include('footer') %>

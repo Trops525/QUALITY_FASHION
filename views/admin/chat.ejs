@@ -1,0 +1,68 @@
+<%- include('header') %>
+
+<div class="header-page">
+    <h1><i class="fa fa-comments text-primary me-2"></i> Hỗ trợ trực tuyến</h1>
+</div>
+
+<div class="chat-wrapper">
+    <div class="chat-sidebar">
+        <div class="chat-sidebar-header">Hội thoại gần đây</div>
+        <div class="chat-list">
+            <% if (typeof danhSachChat !== 'undefined' && danhSachChat.length > 0) { %>
+                <% danhSachChat.forEach(chat => { %>
+                    <a href="/admin/chat/<%= chat.idNguoiGui._id %>" class="user-item">
+                        <div class="user-info">
+                            <span class="user-name"><%= chat.idNguoiGui && chat.idNguoiGui.HoTen ? chat.idNguoiGui.HoTen : 'Khách hàng' %></span>
+                            <% if (!chat.isAnswered) { %><span class="msg-time" style="color: red; font-size: 11px;">Mới</span><% } %>
+                        </div>
+                        <div class="msg-preview"><%= chat.noiDung %></div>
+                    </a>
+                <% }) %>
+            <% } else { %>
+                <div class="empty-sidebar-list">
+                    <i class="fa fa-inbox empty-sidebar-icon"></i>
+                    Chưa có khách hàng nào nhắn tin.
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <div class="chat-main">
+        <% if (typeof khachHangHienTai !== 'undefined' && khachHangHienTai) { %>
+            <div class="chat-main-header">
+                <div class="chat-avatar"><%= khachHangHienTai.HoTen.charAt(0).toUpperCase() %></div>
+                <div>
+                    <div class="chat-header-name"><%= khachHangHienTai.HoTen %> (Khách hàng)</div>
+                    <div class="chat-header-status">● Đang hỗ trợ</div>
+                </div>
+            </div>
+
+            <div class="chat-window" id="chatWindow">
+                <% if (lichSuChat && lichSuChat.length > 0) { %>
+                    <% lichSuChat.forEach(msg => { %>
+                        <div class="message <%= msg.nguoiGui === 'admin' ? 'sent' : 'received' %>">
+                            <%= msg.noiDung %>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <div class="empty-msg-list">Chưa có tin nhắn nào.</div>
+                <% } %>
+            </div>
+            
+            <div class="chat-input-area">
+                <input type="hidden" id="receiverId" value="<%= khachHangHienTai._id %>">
+                <input type="text" id="adminInput" class="chat-input" placeholder="Nhập câu trả lời cho khách..." autocomplete="off">
+                <button id="btnAdminSend" class="btn-send"><i class="fa fa-paper-plane"></i></button>
+            </div>
+
+        <% } else { %>
+            <div class="chat-window chat-window-empty">
+                <h4 class="select-customer-prompt">👈 Hãy chọn một khách hàng bên trái để bắt đầu hỗ trợ</h4>
+            </div>
+        <% } %>
+    </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/admin.js"></script>
+<%- include('footer') %>

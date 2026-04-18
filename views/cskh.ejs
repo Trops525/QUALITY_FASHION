@@ -1,0 +1,48 @@
+<%- include('header') %>
+
+<div style="background-color: #ffffff; padding-bottom: 60px;">
+    <main class="cskh-wrapper pt-4">
+    <div class="row">
+        
+        <div class="col-lg-3 col-md-4">
+            <div class="cskh-sidebar position-sticky" style="top: 100px;">
+                <h5>THƯ VIỆN VÀ HỎI ĐÁP</h5>
+                <a href="#" class="cskh-menu-item active" data-filter="all">
+                    <i class="bi bi-star-fill text-primary"></i> Có thể bạn quan tâm
+                </a>
+                <a href="#" class="cskh-menu-item" data-filter="MuaHang">
+                    <i class="bi bi-bag-fill"></i> Mua hàng
+                </a>
+                <a href="#" class="cskh-menu-item" data-filter="DonHang">
+                    <i class="bi bi-box-seam-fill"></i> Thông tin đơn hàng
+                </a>
+                <a href="#" class="cskh-menu-item" data-filter="DoiTra">
+                    <i class="bi bi-arrow-left-right"></i> Đổi trả hàng
+                </a>
+            </div>
+        </div>
+
+        <div class="col-lg-9 col-md-8">
+            <div class="faq-grid">
+                
+                <% if (faqs && faqs.length > 0) { %>
+                    <% faqs.forEach(function(item) { %>
+                        
+                        <div class="faq-card" data-category="<%= item.DanhMuc %>">
+                            <h6><%= item.CauHoi %></h6>
+                            <p><%= item.TraLoi %></p>
+                        </div>
+
+                    <% }); %>
+                <% } else { %>
+                    <p class="text-muted">Hiện tại chưa có câu hỏi nào được cập nhật.</p>
+                <% } %>
+
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<%- include('footer') %>

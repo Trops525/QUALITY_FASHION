@@ -1,0 +1,22 @@
+[
+  {
+    "HoTen": "Quản trị viên Hệ thống",
+    "TenDangNhap": "admin",
+    "MatKhau": "$2b$10$ZiMG46zTTZv1NM6VgG5D..8mSq6M.OSp3EVlONFQvmn.W36kpoTDe",
+    "Email": "admin@qualityfashion.vn",
+    "DienThoai": "0988777666",
+    "DiaChi": "An Giang",
+    "QuyenHan": 1,
+    "Khoa": 0
+  },
+  {
+    "HoTen": "Nhân viên Hỗ trợ 01",
+    "TenDangNhap": "nhanvien",
+    "MatKhau": "$2b$10$ZiMG46zTTZv1NM6VgG5D..8mSq6M.OSp3EVlONFQvmn.W36kpoTDe",
+    "Email": "nv01@qualityfashion.vn",
+    "DienThoai": "0911222333",
+    "DiaChi": "Long Xuyên, An Giang",
+    "QuyenHan": 3,
+    "Khoa": 0
+  }
+]

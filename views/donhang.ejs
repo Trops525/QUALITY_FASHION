@@ -1,0 +1,104 @@
+<%- include('header') %>
+
+<main class="orders-wrapper">
+    <h2 class="orders-title">Đơn hàng của tôi</h2>
+    
+    <div class="orders-tabs">
+        <a href="/donhang?tab=active" class="order-tab <%= tab === 'active' ? 'active' : '' %>">
+            <i class="bi bi-bag-fill"></i> Đơn hàng
+        </a>
+        <a href="/donhang?tab=history" class="order-tab <%= tab === 'history' ? 'active' : '' %>">
+            <i class="bi bi-clock-history"></i> Lịch sử
+        </a>
+    </div>
+
+    <% 
+        // Lọc đơn hàng theo Tab 
+        let hienThiDonHang = [];
+        if (donHangs && donHangs.length > 0) {
+            if (tab === 'history') {
+                hienThiDonHang = donHangs.filter(dh => ['Đã giao', 'Đã hủy', 'Hoàn trả'].includes(dh.tinhTrang));
+            } else {
+                hienThiDonHang = donHangs.filter(dh => ['Đang xử lý', 'Đã xác nhận', 'Đang giao'].includes(dh.tinhTrang));
+            }
+        }
+    %>
+
+    <% if (hienThiDonHang && hienThiDonHang.length > 0) { %>
+        <% hienThiDonHang.forEach(dh => { 
+            let statusClass = 'status-pending';
+            if (dh.tinhTrang === 'Đang giao' || dh.tinhTrang === 'Đã xác nhận') statusClass = 'status-shipping';
+            else if (dh.tinhTrang === 'Đã giao') statusClass = 'status-done';
+            else if (dh.tinhTrang === 'Đã hủy' || dh.tinhTrang === 'Hoàn trả') statusClass = 'status-cancel';
+        %>
+            <div class="order-card">
+                <div class="order-header">
+                    <div>
+                        <strong class="d-block" style="font-size: 14px;">Đơn hàng #<%= dh._id.toString().substring(0, 8).toUpperCase() %></strong>
+                        <small class="text-muted">Ngày đặt: <%= new Date(dh.ngayDat).toLocaleString('vi-VN') %></small>
+                    </div>
+                    <div class="order-status <%= statusClass %>"><%= dh.tinhTrang %></div>
+                </div>
+
+                <div>
+                    <% dh.chiTiets.forEach(item => { 
+                        let sp = item.idSanPham;
+                    %>
+                        <div class="order-item d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center gap-3">
+                                <img src="<%= sp ? sp.hinhAnh : 'images/default.jpg' %>" class="order-item-img">
+                                <div>
+                                    <strong class="d-block" style="font-size: 14px; color: #333;">
+                                        <%= sp ? sp.tenSanPham : 'Sản phẩm đã xóa' %>
+                                    </strong>
+                                    <small class="text-muted">Phân loại: <%= item.kichThuoc %> | SL: <%= item.soLuong %></small>
+                                </div>
+                            </div>
+                            
+                            <div class="text-end">
+                                <strong class="d-block" style="font-size: 14px; margin-bottom: 5px;">
+                                    <%= (item.thanhTien || 0).toLocaleString('vi-VN') %> đ
+                                </strong>
+                                
+                                <% if (dh.tinhTrang === 'Đã giao') { %>
+                                    <a href="/sanpham/chitiet/<%= sp ? sp._id : '#' %>#danh-gia" 
+                                    class="btn-order btn-order-primary" 
+                                    style="padding: 4px 10px; font-size: 11px;">
+                                    Đánh giá
+                                    </a>
+                                <% } %>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+
+                <div class="order-footer">
+                    <div style="line-height: 1.6;">
+                        <span class="d-block">Địa chỉ: <strong><%= dh.khachHang ? dh.khachHang.diaChi : 'Chưa có' %></strong></span>
+                        <span class="d-block">Số điện thoại: <strong><%= dh.khachHang ? dh.khachHang.dienThoai : 'Chưa có' %></strong></span>
+                        <span class="d-block">Phương thức TT: <strong><%= dh.phuongThucThanhToan === 'BANK' ? 'Chuyển khoản' : 'Thanh toán khi nhận hàng' %></strong></span>
+                    </div>
+                    <div class="text-end">
+                        <div class="mb-2">Tổng tiền: <strong style="font-size: 16px; color: #d0021b;"><%= (dh.tongTien || 0).toLocaleString('vi-VN') %> đ</strong></div>
+                        
+                        <% if (dh.tinhTrang === 'Đang xử lý') { %>
+                            <a href="#" class="btn-order">Cập nhật thông tin</a>
+                            <a href="/donhang?action=cancel&id=<%= dh._id %>&tab=<%= tab %>" class="btn-order btn-order-danger" onclick="return confirm('Bạn chắc chắn muốn hủy đơn hàng này?');">Hủy đơn hàng</a>
+                        <% } else if (dh.tinhTrang === 'Đang giao' || dh.tinhTrang === 'Đã xác nhận') { %>
+                            <a href="/donhang?action=danhan&id=<%= dh._id %>&tab=<%= tab %>" class="btn-order btn-order-success" onclick="return confirm('Xác nhận đã nhận hàng?');">Đã nhận hàng</a>
+                        <% } else if (dh.tinhTrang === 'Đã giao') { %>
+                            <a href="/donhang?action=trahang&id=<%= dh._id %>&tab=<%= tab %>" class="btn-order btn-order-warning" onclick="return confirm('Bạn chắc chắn muốn trả hàng và hoàn tiền cho đơn này?');">Trả hàng/Hoàn tiền</a>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        <% }) %>
+    <% } else { %>
+        <div class="text-center py-5">
+            <p class="text-muted mb-3">Bạn chưa có đơn hàng nào ở mục này.</p>
+            <a href="/sanpham" class="btn btn-dark btn-sm">Mua sắm ngay</a>
+        </div>
+    <% } %>
+</main>
+
+<%- include('footer') %>

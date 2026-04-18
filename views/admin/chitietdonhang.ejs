@@ -1,0 +1,94 @@
+<%- include('header') %>
+
+<div class="main-content">
+    <a href="/admin/donhang" class="btn" style="background: #6c757d; color: #fff; margin-bottom: 20px;">
+        <i class="fa fa-arrow-left"></i> Quay lại danh sách
+    </a>
+    
+    <div class="header-page">
+        <h1 style="margin: 0;">Chi tiết Đơn hàng #<%= order._id.toString().slice(-6).toUpperCase() %></h1>
+        <span class="badge badge-<%= order.tinhTrang %>" style="font-size: 14px; padding: 10px 20px;">
+            <%= order.tinhTrang %>
+        </span>
+    </div>
+
+    <div class="detail-container" style="display: flex; flex-direction: column; gap: 30px; margin-top: 20px;">
+        <div class="info-card" style="background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #eee; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+            <h3 style="border-bottom: 1px solid #eee; padding-bottom: 10px;"><i class="fa fa-truck"></i> Thông tin Giao Hàng</h3>
+            <% 
+                let user = order.idNguoiDung || {};
+                let ten = (order.khachHang && order.khachHang.hoTen) || user.hoTen || user.HoTen || order.hoTen || 'N/A';
+                let sdt = (order.khachHang && order.khachHang.dienThoai) || user.dienThoai || user.DienThoai || order.dienThoai || 'N/A';
+                let dc = (order.khachHang && order.khachHang.diaChi) || user.diaChi || user.DiaChi || order.diaChi || 'N/A';
+            %>
+            <div class="info-line" style="margin-bottom: 8px;"><strong>Người nhận:</strong> <%= ten %></div>
+            <div class="info-line" style="margin-bottom: 8px;"><strong>Số điện thoại:</strong> <%= sdt %></div>
+            <div class="info-line" style="margin-bottom: 8px;"><strong>Địa chỉ:</strong> <%= dc %></div>
+            <div class="info-line"><strong>Ngày đặt:</strong> <%= order.ngayDat ? new Date(order.ngayDat).toLocaleString('vi-VN') : 'N/A' %></div>
+        </div>
+
+        <div class="table-container" style="background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.05);">
+            <table class="product-table" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #f8f9fa;">
+                        <th style="padding: 12px; border-bottom: 2px solid #dee2e6;" class="text-center">Hình ảnh</th>
+                        <th style="padding: 12px; border-bottom: 2px solid #dee2e6;">Sản phẩm</th>
+                        <th style="padding: 12px; border-bottom: 2px solid #dee2e6;" class="text-center">Màu</th>
+                        <th style="padding: 12px; border-bottom: 2px solid #dee2e6;" class="text-center">Size</th>
+                        <th style="padding: 12px; border-bottom: 2px solid #dee2e6;" class="text-center">SL</th>
+                        <th style="padding: 12px; border-bottom: 2px solid #dee2e6;" class="text-right">Đơn giá</th>
+                        <th style="padding: 12px; border-bottom: 2px solid #dee2e6;" class="text-right">Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (typeof items !== 'undefined' && items.length > 0) { %>
+                        <% items.forEach(item => { %>
+                            <tr>
+                                <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: center;">
+                                    <% if (item.idSanPham && item.idSanPham.hinhAnh) { %>
+                                        <img src="<%= item.idSanPham.hinhAnh || '/images/default.jpg' %>"
+                                            style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                                    <% } else { %>
+                                        <img src="/images/Quality_Logo.jpg" style="width: 50px; height: 50px; object-fit: cover;">
+                                    <% } %>
+                                </td>
+                                
+                                <td style="padding: 12px; border-bottom: 1px solid #eee;">
+                                    <%= item.idSanPham ? item.idSanPham.tenSanPham : 'Sản phẩm đã bị xóa' %>
+                                </td>
+                                
+                                <td style="padding: 12px; border-bottom: 1px solid #eee;" class="text-center">
+                                    <% if (item.idSanPham && item.idSanPham.tenSanPham) { 
+                                        let words = item.idSanPham.tenSanPham.trim().split(' ');
+                                        let mauSac = words[words.length - 1];
+                                    %>
+                                        <%= mauSac %>
+                                    <% } else { %>
+                                        Mặc định
+                                    <% } %>
+                                </td>
+                                
+                                <td style="padding: 12px; border-bottom: 1px solid #eee;" class="text-center"><%= item.kichThuoc || item.size || 'Mặc định' %></td>
+                                <td style="padding: 12px; border-bottom: 1px solid #eee;" class="text-center"><%= item.soLuong %></td>
+                                <td style="padding: 12px; border-bottom: 1px solid #eee;" class="text-right"><%= item.donGia ? item.donGia.toLocaleString('vi-VN') : '0' %>đ</td>
+                                <td style="padding: 12px; border-bottom: 1px solid #eee;" class="text-right; font-weight: bold; color: #d0021b;">
+                                    <%= (item.soLuong * (item.donGia || 0)).toLocaleString('vi-VN') %>đ
+                                </td>
+                            </tr>
+                        <% }) %>
+                        <tr style="background: #fafafa; font-weight: bold;">
+                            <td colspan="6" style="text-align: right; padding: 20px;">TỔNG CỘNG:</td>
+                            <td style="text-align: right; color: #d0021b; padding: 20px; font-size: 18px;">
+                                <%= (order.tongTien || 0).toLocaleString('vi-VN') %>đ
+                            </td>
+                        </tr>
+                    <% } else { %>
+                        <tr><td colspan="7" class="text-center" style="padding: 30px;">Không tìm thấy sản phẩm nào ở bảng Chi tiết.</td></tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<%- include('footer') %>

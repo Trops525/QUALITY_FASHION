@@ -1,0 +1,48 @@
+<% if (totalPages > 1) { %>
+    <nav class="mt-5 mb-5">
+        <ul class="pagination justify-content-center">
+            
+            <% 
+            // Hàm xử lý logic sinh ra thuộc tính href hoặc onclick
+            function getAction(pageNum) {
+                if (typeof pagType !== 'undefined' && pagType === 'form') {
+                    return `href="#" onclick="changePage('${pageNum}')"`;
+                } else {
+                    return `href="${queryParams.replace('PAGE', pageNum)}"`;
+                }
+            }
+            %>
+
+            <li class="page-item <%= currentPage <= 1 ? 'disabled' : '' %>">
+                <a class="page-link text-dark" <%- getAction(currentPage - 1) %>>Trước</a>
+            </li>
+            
+            <% 
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, currentPage + 2);
+            
+            // Trang đầu
+            if (startPage > 1) { %>
+                <li class="page-item"><a class="page-link text-dark" <%- getAction(1) %>>1</a></li>
+                <% if (startPage > 2) { %> <li class="page-item disabled"><span class="page-link text-muted border-0 bg-transparent">...</span></li> <% } %>
+            <% } 
+            
+            // Các trang giữa
+            for(let i = startPage; i <= endPage; i++) { %>
+                <li class="page-item <%= currentPage == i ? 'active' : '' %>">
+                    <a class="page-link <%= currentPage == i ? 'bg-dark border-dark text-white' : 'text-dark' %>" <%- getAction(i) %>><%= i %></a>
+                </li>
+            <% } 
+            
+            // Trang cuối
+            if (endPage < totalPages) { 
+                if (endPage < totalPages - 1) { %> <li class="page-item disabled"><span class="page-link text-muted border-0 bg-transparent">...</span></li> <% } %>
+                <li class="page-item"><a class="page-link text-dark" <%- getAction(totalPages) %>><%= totalPages %></a></li>
+            <% } %>
+
+            <li class="page-item <%= currentPage >= totalPages ? 'disabled' : '' %>">
+                <a class="page-link text-dark" <%- getAction(currentPage + 1) %>>Sau</a>
+            </li>
+        </ul>
+    </nav>
+<% } %>

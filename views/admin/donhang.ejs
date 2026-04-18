@@ -1,0 +1,78 @@
+<%- include('header') %> 
+
+    <div class="header-page">
+        <h1>Danh sách đơn hàng</h1>
+    </div>
+
+    <div class="table-container">
+        <table class="product-table">
+            <thead>
+                <tr>
+                    <th style="width: 80px;">ID</th>
+                    <th>Khách hàng</th> 
+                    <th>Ngày đặt</th>
+                    <th>Tổng tiền</th>
+                    <th>Trạng thái</th>
+                    <th>Thanh toán</th> 
+                    <th class="text-center">Thao tác</th> 
+                </tr>
+            </thead>
+            <tbody>
+                <% if (typeof dsDonHang !== 'undefined' && dsDonHang.length > 0) { %>
+                    <% dsDonHang.forEach(dh => { %> 
+                    <tr>
+                        <td>#<%= dh._id.toString().slice(-5).toUpperCase() %></td>
+                        <td>
+                            <% 
+                                let u = dh.idNguoiDung || {};
+                                // Quét cả trường hợp viết hoa và viết thường
+                                let tenList = (dh.khachHang && dh.khachHang.hoTen) || u.hoTen || u.HoTen || dh.hoTen || 'N/A';
+                                let sdtList = (dh.khachHang && dh.khachHang.dienThoai) || u.dienThoai || u.DienThoai || dh.dienThoai || 'N/A';
+                            %>
+                            <strong><%= tenList %></strong><br> 
+                            <small><%= sdtList %></small>
+                        </td>
+                        <td>
+                            <%= dh.ngayDat ? new Date(dh.ngayDat).toLocaleString('vi-VN') : 'Chưa cập nhật' %>
+                        </td>
+                        <td>
+                            <strong style="color:#d0021b;">
+                                <%= dh.tongTien ? dh.tongTien.toLocaleString('vi-VN') : '0' %> đ
+                            </strong> 
+                        </td>
+                        <td>
+                            <span class="badge badge-<%= dh.tinhTrang %>"><%= dh.tinhTrang %></span>
+                        </td>
+                        <td><%= dh.phuongThucThanhToan %></td>
+                        <td class="text-center">
+                            <div class="action-buttons">
+                                <a href="/admin/donhang/chitiet/<%= dh._id %>" class="btn-sm btn-view">Xem</a> 
+                                
+                                <% if (dh.tinhTrang === 'Đang xử lý') { %>
+                                    <a href="/admin/donhang/xacnhan/<%= dh._id %>" 
+                                       class="btn-sm btn-confirm" 
+                                       onclick="return confirm('Xác nhận cho đi giao đơn hàng này và TRỪ KHO?');">Duyệt</a> 
+                                <% } %>
+                                
+                                <% if (dh.tinhTrang === 'Yêu cầu trả hàng') { %>
+                                    <a href="/admin/donhang/xacnhantrahang/<%= dh._id %>" 
+                                       class="btn-sm btn-confirm" 
+                                       style="background: #f39c12; border-color: #e67e22;"
+                                       onclick="return confirm('Xác nhận nhận lại hàng, CỘNG LẠI KHO và TRỪ LƯỢT MUA?');">Duyệt trả hàng</a> 
+                                <% } %>
+
+                                <a href="/admin/donhang/xoa/<%= dh._id %>" 
+                                   class="btn-sm btn-delete" 
+                                   onclick="return confirm('Bạn có chắc chắn muốn xóa đơn hàng này không?');">Xóa</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <% }) %>
+                <% } else { %>
+                    <tr><td colspan="7" style="text-align:center; padding: 40px;">Chưa có đơn hàng nào.</td></tr> 
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+
+<%- include('footer') %>

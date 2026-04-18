@@ -1,0 +1,84 @@
+<%- include('header') %>
+
+    <div class="header-page">
+        <h1>Quản lý Đánh Giá</h1>
+    </div>
+
+    <div class="filter-section">
+        <form action="/admin/danhgia" method="GET" class="filter-form">
+            <div class="filter-group" style="max-width: 250px;">
+                <label>Lọc theo Số sao:</label>
+                <select name="soSao" onchange="this.form.submit()">
+                    <option value="">-- Tất cả đánh giá --</option>
+                    <option value="5" <%= typeof query !== 'undefined' && query.soSao == '5' ? 'selected' : '' %>>5 Sao (Rất tốt)</option>
+                    <option value="4" <%= typeof query !== 'undefined' && query.soSao == '4' ? 'selected' : '' %>>4 Sao (Tốt)</option>
+                    <option value="3" <%= typeof query !== 'undefined' && query.soSao == '3' ? 'selected' : '' %>>3 Sao (Bình thường)</option>
+                    <option value="2" <%= typeof query !== 'undefined' && query.soSao == '2' ? 'selected' : '' %>>2 Sao (Kém)</option>
+                    <option value="1" <%= typeof query !== 'undefined' && query.soSao == '1' ? 'selected' : '' %>>1 Sao (Rất kém)</option>
+                </select>
+            </div>
+        </form>
+    </div>
+
+    <div class="table-container">
+        <table class="product-table">
+            <thead>
+                <tr>
+                    <th>Sản phẩm</th>
+                    <th>Khách hàng</th>
+                    <th>Số sao</th>
+                    <th>Nội dung đánh giá</th>
+                    <th>Ngày đánh giá</th>
+                    <th class="text-center" style="width: 100px;">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% let hasReviews = false; %>
+                <% if (sanPhamCoDanhGia && sanPhamCoDanhGia.length > 0) { %>
+                    <% sanPhamCoDanhGia.forEach(sp => { %>
+                        <% if (sp.danhGia && sp.danhGia.length > 0) { %>
+                            <% sp.danhGia.forEach(dg => { %>
+                                <% hasReviews = true; %>
+                                <tr>
+                                    <td>
+                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                            <img src="<%= sp.hinhAnh || '/images/default.jpg' %>" alt="" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;">
+                                            <a href="/sanpham/chitiet/<%= sp._id %>" target="_blank" style="color: #333; font-weight: bold; text-decoration: none;"><%= sp.tenSanPham %></a>
+                                        </div>
+                                    </td>
+                                    <td><strong><%= dg.tenNguoiDung %></strong></td>
+                                    <td>
+                                        <span style="color: #f39c12; font-size: 14px;">
+                                            <% for(let i=0; i<5; i++) { %>
+                                                <i class="fa fa-star" <%= i >= dg.soSao ? 'style="color: #e0e0e0;"' : '' %>></i>
+                                            <% } %>
+                                        </span>
+                                    </td>
+                                    <td style="max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="<%= dg.noiDung %>">
+                                        <%= dg.noiDung %>
+                                    </td>
+                                    <td><%= new Date(dg.ngayDanhGia).toLocaleDateString('vi-VN') %></td>
+                                    <td class="text-center">
+                                        <div class="action-buttons">
+                                            <% if (dg.idNguoiDung) { %>
+                                                <a href="/admin/chat/<%= dg.idNguoiDung %>" class="btn-sm" style="background: #0d6efd; text-decoration: none;" title="Chat với khách hàng này">Chat</a>
+                                            <% } %>
+                                            <a href="/admin/danhgia/xoa/<%= sp._id %>/<%= dg._id %>" class="btn-sm btn-delete" onclick="return confirm('Bạn có chắc chắn muốn xóa đánh giá này không?');">Xóa</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } %>
+                    <% }) %>
+                <% } %>
+                
+                <% if (!hasReviews) { %>
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 40px;">Chưa có đánh giá nào trong hệ thống.</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+
+<%- include('footer') %>

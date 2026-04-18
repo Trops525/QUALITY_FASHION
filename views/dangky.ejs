@@ -1,0 +1,38 @@
+<%- include('header') %>
+<div class="auth-wrapper">
+    <div class="auth-box">
+        <h3>Đăng ký tài khoản</h3>
+        <form action="/dangky" method="POST">
+            <div class="auth-form-group">
+                <label class="auth-label">Họ và tên</label>
+                <input type="text" name="HoTen" required class="auth-input">
+            </div>
+            <div class="auth-form-group">
+                <label class="auth-label">Tên đăng nhập</label>
+                <input type="text" name="TenDangNhap" required class="auth-input">
+            </div>
+            <div class="auth-form-group">
+                <label class="auth-label">Email</label>
+                <input type="email" name="Email" required class="auth-input">
+            </div>
+            <div class="auth-form-group">
+                <label class="auth-label">Số điện thoại</label>
+                <input type="text" name="DienThoai" required class="auth-input">
+            </div>
+            <div class="auth-form-group">
+                <label class="auth-label">Mật khẩu</label>
+                <input type="password" id="MatKhau" name="MatKhau" required class="auth-input">
+            </div>
+            <div class="auth-form-group">
+                <label class="auth-label">Xác nhận mật khẩu</label>
+                <input type="password" id="XacNhanMatKhau" required class="auth-input">
+                <small id="error-msg" class="text-danger d-none mt-1 fw-bold">Mật khẩu xác nhận không khớp!</small>
+            </div>
+            <button type="submit" class="auth-btn">Đăng ký</button>
+        </form>
+        <div class="text-center mt-4 font-13 text-secondary">
+            Bạn đã có tài khoản? <a href="/dangnhap" class="text-dark fw-bold text-decoration-none">Đăng nhập</a>
+        </div>
+    </div>
+</div>
+<%- include('footer') %>
