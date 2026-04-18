@@ -1,4 +1,4 @@
-﻿﻿const express = require('express');
+﻿﻿﻿﻿const express = require('express');
 const router = express.Router();
 const SanPham = require('../models/sanpham'); 
 const DanhMuc = require('../models/danhmuc'); 
@@ -427,8 +427,25 @@ router.get('/thongke', async (req, res) => {
     try {
         if (!req.session.QuyenHan || req.session.QuyenHan !== 1) return res.redirect('/');
 
-      
-        const dsDonHang = await DonHang.find({ tinhTrang: 'Đã giao' });
+        // Lấy tháng năm từ URL hoặc lấy hiện tại làm mặc định
+        let currentDate = new Date();
+        let selectedYear = req.query.year ? parseInt(req.query.year) : currentDate.getFullYear();
+        let selectedMonth = req.query.month !== undefined ? parseInt(req.query.month) : currentDate.getMonth() + 1;
+
+        let queryDonHang = { tinhTrang: 'Đã giao' };
+
+        // Tính toán khoảng thời gian bắt đầu và kết thúc
+        if (selectedMonth > 0) { // Lọc theo 1 tháng cụ thể
+            let startDate = new Date(selectedYear, selectedMonth - 1, 1);
+            let endDate = new Date(selectedYear, selectedMonth, 0, 23, 59, 59, 999);
+            queryDonHang.ngayDat = { $gte: startDate, $lte: endDate };
+        } else { // Lọc cả năm
+            let startDate = new Date(selectedYear, 0, 1);
+            let endDate = new Date(selectedYear, 11, 31, 23, 59, 59, 999);
+            queryDonHang.ngayDat = { $gte: startDate, $lte: endDate };
+        }
+
+        const dsDonHang = await DonHang.find(queryDonHang);
         const idsDonHang = dsDonHang.map(dh => dh._id);
         const chiTiet = await ChiTietDonHang.find({ idDonHang: { $in: idsDonHang } });
 
@@ -468,6 +485,8 @@ router.get('/thongke', async (req, res) => {
             tongDonHang: dsDonHang.length,
             tongSanPhamDaBan,
             top10SanPham,
+            selectedMonth,
+            selectedYear,
             session: req.session,
             currentPath: '/admin/thongke'
         });
@@ -565,8 +584,57 @@ router.get('/nguoidung', async (req, res) => {
     }
 });
 
-// GET: Khóa / Mở khóa người dùng
-router.get('/nguoidung/khoa/:id', async (req, res) => {
+// GET: Hiển thị form Thêm người dùng
+router.get('/nguoidung/them', async (req, res) => {
+    if (!req.session.QuyenHan || req.session.QuyenHan !== 1) return res.redirect('/');
+    res.render('admin/themnguoidung', {
+        title: 'Thêm Người Dùng - QUALITY ADMIN',
+        session: req.session,
+        currentPath: '/admin/nguoidung'
+    });
+});
+
+// POST: Xử lý Thêm người dùng
+router.post('/nguoidung/them', async (req, res) => {
+    try {
+        if (!req.session.QuyenHan || req.session.QuyenHan !== 1) return res.redirect('/');
+        
+        const { HoTen, TenDangNhap, Email, DienThoai, MatKhau, XacNhanMatKhau, QuyenHan } = req.body;
+
+        // Kiểm tra dữ liệu hợp lệ
+        if (TenDangNhap.length <= 3) return res.send("<script>alert('Tên đăng nhập phải dài hơn 3 ký tự!'); window.history.back();</script>");
+        if (MatKhau.length <= 4) return res.send("<script>alert('Mật khẩu phải dài hơn 4 ký tự!'); window.history.back();</script>");
+        if (MatKhau !== XacNhanMatKhau) return res.send("<script>alert('Xác nhận mật khẩu không khớp!'); window.history.back();</script>");
+        if (!/^[0-9]{10}$/.test(DienThoai)) return res.send("<script>alert('Số điện thoại phải gồm đúng 10 chữ số!'); window.history.back();</script>");
+
+        // Kiểm tra trùng lặp
+        const checkUser = await NguoiDung.findOne({ TenDangNhap });
+        if (checkUser) return res.send("<script>alert('Tên đăng nhập đã tồn tại!'); window.history.back();</script>");
+
+        const checkEmail = await NguoiDung.findOne({ Email });
+        if (checkEmail) return res.send("<script>alert('Email này đã được sử dụng!'); window.history.back();</script>");
+
+        const checkPhone = await NguoiDung.findOne({ DienThoai });
+        if (checkPhone) return res.send("<script>alert('Số điện thoại này đã được sử dụng!'); window.history.back();</script>");
+
+        // Mã hóa mật khẩu và tạo
+        var salt = bcrypt.genSaltSync(10);
+        await NguoiDung.create({
+            HoTen, TenDangNhap, Email, DienThoai,
+            MatKhau: bcrypt.hashSync(MatKhau, salt),
+            QuyenHan: parseInt(QuyenHan) || 2,
+            Khoa: 0
+        });
+
+        res.send("<script>alert('Tạo tài khoản thành công!'); window.location.href='/admin/nguoidung';</script>");
+    } catch (err) {
+        console.log(err);
+        res.send("<script>alert('Lỗi hệ thống khi tạo tài khoản!'); window.history.back();</script>");
+    }
+});
+
+// POST: Khóa / Mở khóa người dùng
+router.post('/nguoidung/khoa/:id', async (req, res) => {
     try {
         if (!req.session.QuyenHan || req.session.QuyenHan !== 1) return res.redirect('/');
         if (req.params.id === req.session.MaNguoiDung) {
@@ -580,6 +648,21 @@ router.get('/nguoidung/khoa/:id', async (req, res) => {
             res.send(`<script>alert('Đã ${user.Khoa === 1 ? 'khóa' : 'mở khóa'} tài khoản thành công!'); window.location.href='/admin/nguoidung';</script>`);
         } else res.redirect('/admin/nguoidung');
     } catch (err) { res.send("<script>alert('Lỗi thao tác!'); window.location.href='/admin/nguoidung';</script>"); }
+});
+
+// POST: Xóa người dùng
+router.post('/nguoidung/xoa/:id', async (req, res) => {
+    try {
+        if (!req.session.QuyenHan || req.session.QuyenHan !== 1) return res.redirect('/');
+        if (req.params.id === req.session.MaNguoiDung) {
+            return res.send("<script>alert('Bạn không thể tự xóa tài khoản của chính mình!'); window.location.href='/admin/nguoidung';</script>");
+        }
+        
+        await NguoiDung.findByIdAndDelete(req.params.id);
+        res.send("<script>alert('Đã xóa người dùng thành công!'); window.location.href='/admin/nguoidung';</script>");
+    } catch (err) { 
+        res.send("<script>alert('Lỗi thao tác!'); window.location.href='/admin/nguoidung';</script>"); 
+    }
 });
 
 // POST: Thay đổi Quyền hạn

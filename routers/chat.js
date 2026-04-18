@@ -70,7 +70,10 @@ router.get('/', async (req, res) => {
             const kw = search.toLowerCase();
             danhSachChat = danhSachChat.filter(c => {
                 const ten = (c.idNguoiGui && (c.idNguoiGui.HoTen || c.idNguoiGui.hoTen)) ? (c.idNguoiGui.HoTen || c.idNguoiGui.hoTen) : '';
-                return ten.toLowerCase().includes(kw);
+                const sdt = (c.idNguoiGui && c.idNguoiGui.DienThoai) ? c.idNguoiGui.DienThoai : '';
+                const email = (c.idNguoiGui && c.idNguoiGui.Email) ? c.idNguoiGui.Email : '';
+                const tk = (c.idNguoiGui && c.idNguoiGui.TenDangNhap) ? c.idNguoiGui.TenDangNhap : '';
+                return ten.toLowerCase().includes(kw) || sdt.includes(kw) || email.toLowerCase().includes(kw) || tk.toLowerCase().includes(kw);
             });
         }
 
@@ -142,7 +145,13 @@ router.get('/:idKhachHang', async (req, res) => {
 
         if (search) {
             const kw = search.toLowerCase();
-            danhSachChat = danhSachChat.filter(c => ((c.idNguoiGui && (c.idNguoiGui.HoTen || c.idNguoiGui.hoTen)) ? (c.idNguoiGui.HoTen || c.idNguoiGui.hoTen) : '').toLowerCase().includes(kw));
+            danhSachChat = danhSachChat.filter(c => {
+                const ten = (c.idNguoiGui && (c.idNguoiGui.HoTen || c.idNguoiGui.hoTen)) ? (c.idNguoiGui.HoTen || c.idNguoiGui.hoTen) : '';
+                const sdt = (c.idNguoiGui && c.idNguoiGui.DienThoai) ? c.idNguoiGui.DienThoai : '';
+                const email = (c.idNguoiGui && c.idNguoiGui.Email) ? c.idNguoiGui.Email : '';
+                const tk = (c.idNguoiGui && c.idNguoiGui.TenDangNhap) ? c.idNguoiGui.TenDangNhap : '';
+                return ten.toLowerCase().includes(kw) || sdt.includes(kw) || email.toLowerCase().includes(kw) || tk.toLowerCase().includes(kw);
+            });
         }
 
         res.render('admin/chat', { 

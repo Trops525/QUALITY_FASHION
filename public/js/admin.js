@@ -102,6 +102,41 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
+
+    // =========================================
+    // 4. XỬ LÝ TRANG THÊM NGƯỜI DÙNG
+    // =========================================
+    const formThemNguoiDung = document.getElementById('form-them-nguoi-dung');
+    if (formThemNguoiDung) {
+        formThemNguoiDung.addEventListener('submit', function(e) {
+            const tenDN = document.querySelector('input[name="TenDangNhap"]').value.trim();
+            const email = document.querySelector('input[name="Email"]').value.trim();
+            const sdt = document.querySelector('input[name="DienThoai"]').value.trim();
+            const mk = document.querySelector('input[name="MatKhau"]').value;
+            const xacNhanMk = document.querySelector('input[name="XacNhanMatKhau"]').value;
+
+            if (tenDN.length <= 3) {
+                e.preventDefault();
+                return alert('Tên đăng nhập phải dài hơn 3 ký tự!');
+            }
+            if (!email.includes('@')) {
+                e.preventDefault();
+                return alert('Vui lòng nhập đúng địa chỉ Email!');
+            }
+            if (!/^[0-9]{10}$/.test(sdt)) {
+                e.preventDefault();
+                return alert('Số điện thoại phải gồm đúng 10 chữ số!');
+            }
+            if (mk.length <= 4) {
+                e.preventDefault();
+                return alert('Mật khẩu phải dài hơn 4 ký tự!');
+            }
+            if (mk !== xacNhanMk) {
+                e.preventDefault();
+                return alert('Xác nhận mật khẩu không khớp!');
+            }
+        });
+    }
 });
 
 
@@ -145,6 +180,18 @@ document.addEventListener('DOMContentLoaded', function() {
     itemCheckboxes.forEach(cb => {
         cb.addEventListener('change', updateBulkActions);
     });
+
+    // =========================================
+    // 6. XỬ LÝ TRANG THỐNG KÊ (Lọc thời gian)
+    // =========================================
+    const formFilterThongKe = document.getElementById('form-filter-thongke');
+    if (formFilterThongKe) {
+        const filterMonth = document.getElementById('filter-month');
+        const filterYear = document.getElementById('filter-year');
+
+        if (filterMonth) filterMonth.addEventListener('change', () => formFilterThongKe.submit());
+        if (filterYear) filterYear.addEventListener('change', () => formFilterThongKe.submit());
+    }
 });
 // ==========================================
 // LOGIC REAL-TIME CHAT CHO ADMIN
@@ -203,4 +250,3 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
-

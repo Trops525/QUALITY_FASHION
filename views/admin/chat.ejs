@@ -6,7 +6,17 @@
 
 <div class="chat-wrapper">
     <div class="chat-sidebar">
-        <div class="chat-sidebar-header">Hội thoại gần đây</div>
+        <div class="chat-sidebar-header">
+            <div style="font-weight: bold; font-size: 16px; margin-bottom: 15px;">Hội thoại gần đây</div>
+            <form action="<%= typeof khachHangHienTai !== 'undefined' && khachHangHienTai ? '/admin/chat/' + khachHangHienTai._id : '/admin/chat' %>" method="GET" id="chat-filter-form">
+                <input type="text" name="search" placeholder="Tìm tên, SĐT, Email, Tài khoản..." value="<%= typeof query !== 'undefined' ? query.search : '' %>" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; font-size: 13px;" onkeypress="if(event.key === 'Enter') document.getElementById('chat-filter-form').submit();">
+                <select name="filter" onchange="document.getElementById('chat-filter-form').submit()" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; font-size: 13px; outline: none; cursor: pointer;">
+                    <option value="tat-ca" <%= (typeof query !== 'undefined' && query.filter === 'tat-ca') ? 'selected' : '' %>>Tất cả tin nhắn</option>
+                    <option value="tin-moi" <%= (typeof query !== 'undefined' && (query.filter === 'tin-moi' || query.filter === 'chua-tra-loi')) ? 'selected' : '' %>>Tin mới chưa đọc</option>
+                    <option value="da-tra-loi" <%= (typeof query !== 'undefined' && query.filter === 'da-tra-loi') ? 'selected' : '' %>>Đã phản hồi</option>
+                </select>
+            </form>
+        </div>
         <div class="chat-list">
             <% if (typeof danhSachChat !== 'undefined' && danhSachChat.length > 0) { %>
                 <% danhSachChat.forEach(chat => { %>

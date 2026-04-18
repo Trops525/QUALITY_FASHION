@@ -3,20 +3,78 @@ document.addEventListener('DOMContentLoaded', function() {
     // ==========================================
     // 1. TRANG ĐĂNG KÝ (Kiểm tra mật khẩu)
     // ==========================================
-    const registerForm = document.querySelector('form[action="/dangky"]');
-    if (registerForm) {
-        registerForm.addEventListener('submit', function(e) {
-            var mk = document.getElementById("MatKhau").value;
-            var xnmk = document.getElementById("XacNhanMatKhau").value;
-            var errorMsg = document.getElementById("error-msg");
-            
+    const registrationForm = document.querySelector('form[action="/dangky"]');
+
+    if (registrationForm) {
+        registrationForm.addEventListener('submit', function (e) {
+            const hoTen = document.querySelector('input[name="HoTen"]').value.trim();
+            const tenDN = document.querySelector('input[name="TenDangNhap"]').value.trim();
+            const email = document.querySelector('input[name="Email"]').value.trim();
+            const sdt = document.querySelector('input[name="DienThoai"]').value.trim();
+            const mk = document.getElementById('MatKhau').value;
+            const xnmk = document.getElementById('XacNhanMatKhau').value;
+
+            // Kiểm tra Họ tên 
+            if (!hoTen) {
+                e.preventDefault();
+                return Swal.fire({ icon: 'warning', title: 'Thiếu thông tin', text: 'Vui lòng nhập Họ và tên!' });
+            }
+
+            // Kiểm tra Tên đăng nhập (Độ dài > 3) 
+            if (!tenDN || tenDN.length <= 3) {
+                e.preventDefault();
+                return Swal.fire({ icon: 'error', title: 'Tên đăng nhập', text: 'Tên đăng nhập phải dài hơn 3 ký tự!' });
+            }
+
+            // Kiểm tra định dạng Email 
+            if (!email || !email.includes('@')) {
+                e.preventDefault();
+                return Swal.fire({ icon: 'error', title: 'Email không hợp lệ', text: 'Vui lòng nhập đúng địa chỉ Email!' });
+            }
+
+            // Kiểm tra định dạng SĐT (10 số) 
+            if (!/^[0-9]{10}$/.test(sdt)) {
+                e.preventDefault();
+                return Swal.fire({ icon: 'error', title: 'Số điện thoại', text: 'Số điện thoại phải bao gồm 10 chữ số!' });
+            }
+
+            // Kiểm tra độ dài mật khẩu 
+            if (mk.length <= 4) {
+                e.preventDefault();
+                return Swal.fire({ icon: 'error', title: 'Mật khẩu yếu', text: 'Mật khẩu phải dài hơn 4 ký tự!' });
+            }
+
+            // Kiểm tra khớp mật khẩu 
             if (mk !== xnmk) {
-                errorMsg.style.display = "block"; // Hiện lỗi
-                e.preventDefault(); // Chặn gửi form
-            } else {
-                errorMsg.style.display = "none"; // Ẩn lỗi
+                e.preventDefault();
+                return Swal.fire({ icon: 'error', title: 'Mật khẩu không khớp', text: 'Xác nhận mật khẩu phải giống mật khẩu đã nhập!' });
             }
         });
+    }
+
+    // ==========================================
+    // 1.1 HIỂN THỊ THÔNG BÁO ĐĂNG KÝ/ĐĂNG NHẬP
+    // ==========================================
+    const authMsgData = document.getElementById('auth-msg-data');
+    if (authMsgData) {
+        const icon = authMsgData.getAttribute('data-icon');
+        const title = authMsgData.getAttribute('data-title');
+        const text = authMsgData.getAttribute('data-text');
+        const redirect = authMsgData.getAttribute('data-redirect');
+
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: icon,
+                title: title,
+                text: text,
+                confirmButtonText: 'OK'
+            }).then(() => {
+                if (redirect) window.location.href = redirect;
+            });
+        } else {
+            alert(text);
+            if (redirect) window.location.href = redirect;
+        }
     }
 
     // ==========================================

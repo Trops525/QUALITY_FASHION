@@ -27,23 +27,19 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f9; margin: 
     background: #fff;
     border-radius: 12px;
     overflow: hidden;
-    height: calc(100vh - 130px); /* Tự động tràn màn hình cho đẹp */
+    height: 600px;/* Tự động tràn màn hình */
     box-shadow: 0 5px 20px rgba(0,0,0,0.05);
     border: 1px solid #eaeaea;
 }
 
 /* CỘT TRÁI: DANH SÁCH */
-.sidebar { 
-    width: 250px; 
-    background: #212529; 
-    position: fixed; 
-    top: 0; 
-    bottom: 0; /* Ép dính chặt vào đáy màn hình */
-    left: 0; 
-    color: white; 
-    padding-top: 20px; 
-    z-index: 1000; 
-     /*nếu menu dài quá thì có thể cuộn được */
+.chat-sidebar { 
+    width: 320px; 
+    background: #fff; 
+    border-right: 1px solid #eaeaea;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
 }
 .chat-sidebar-header {
     padding: 20px; font-weight: bold; font-size: 16px;
@@ -324,3 +320,18 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f9; margin: 
 .text-center { text-align: center; }
 .text-success { color: #28a745; }
 .fw-bold { font-weight: bold; }
+
+/* =========================================
+   6. GIAO DIỆN FORM THÊM NGƯỜI DÙNG (ADMIN)
+   ========================================= */
+.admin-form-container { max-width: 600px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+.admin-form-group { margin-bottom: 15px; }
+.admin-form-label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
+.admin-form-input { width: 100%; padding: 10px 12px; border: 1px solid #ced4da; border-radius: 4px; box-sizing: border-box; transition: 0.3s; }
+.admin-form-input:focus { border-color: #0d6efd; outline: none; box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1); }
+.admin-form-actions { display: flex; gap: 10px; margin-top: 20px; }
+.btn-admin-submit { background: #198754; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; flex: 1; text-align: center; transition: 0.2s; }
+.btn-admin-submit:hover { background: #157347; }
+.btn-admin-cancel { background: #6c757d; color: white; text-decoration: none; padding: 10px 20px; border-radius: 4px; text-align: center; font-weight: bold; flex: 1; display: inline-block; box-sizing: border-box; transition: 0.2s; }
+.btn-admin-cancel:hover { background: #5c636a; }
+.text-danger { color: #dc3545 !important; }

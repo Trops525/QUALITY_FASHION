@@ -1,32 +1,33 @@
 <%- include('header') %>
+<link rel="stylesheet" href="/css/style.css">
+
 <div class="auth-wrapper">
     <div class="auth-box">
         <h3>Đăng ký tài khoản</h3>
-        <form action="/dangky" method="POST">
+        <form action="/dangky" method="POST" novalidate>
             <div class="auth-form-group">
                 <label class="auth-label">Họ và tên</label>
-                <input type="text" name="HoTen" required class="auth-input">
+                <input type="text" name="HoTen" value="<%= typeof oldData !== 'undefined' && oldData ? oldData.HoTen : '' %>" class="auth-input">
             </div>
             <div class="auth-form-group">
                 <label class="auth-label">Tên đăng nhập</label>
-                <input type="text" name="TenDangNhap" required class="auth-input">
+                <input type="text" name="TenDangNhap" value="<%= typeof oldData !== 'undefined' && oldData ? oldData.TenDangNhap : '' %>" class="auth-input">
             </div>
             <div class="auth-form-group">
                 <label class="auth-label">Email</label>
-                <input type="email" name="Email" required class="auth-input">
+                <input type="email" name="Email" value="<%= typeof oldData !== 'undefined' && oldData ? oldData.Email : '' %>" class="auth-input">
             </div>
             <div class="auth-form-group">
                 <label class="auth-label">Số điện thoại</label>
-                <input type="text" name="DienThoai" required class="auth-input">
+                <input type="text" name="DienThoai" value="<%= typeof oldData !== 'undefined' && oldData ? oldData.DienThoai : '' %>" class="auth-input">
             </div>
             <div class="auth-form-group">
                 <label class="auth-label">Mật khẩu</label>
-                <input type="password" id="MatKhau" name="MatKhau" required class="auth-input">
+                <input type="password" id="MatKhau" name="MatKhau" class="auth-input">
             </div>
             <div class="auth-form-group">
                 <label class="auth-label">Xác nhận mật khẩu</label>
-                <input type="password" id="XacNhanMatKhau" required class="auth-input">
-                <small id="error-msg" class="text-danger d-none mt-1 fw-bold">Mật khẩu xác nhận không khớp!</small>
+                <input type="password" id="XacNhanMatKhau" class="auth-input">
             </div>
             <button type="submit" class="auth-btn">Đăng ký</button>
         </form>
@@ -35,4 +36,24 @@
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="/js/main.js"></script>
+
+<% if (typeof alertMsg !== 'undefined' && alertMsg) { %>
+    <div id="auth-msg-data" 
+         data-icon="<%= alertMsg.icon %>" 
+         data-title="<%= alertMsg.title %>" 
+         data-text="<%= alertMsg.text %>"
+         data-redirect="<%= alertMsg.icon === 'success' ? '/dangnhap' : '' %>">
+    </div>
+<% } else if (typeof errorMsg !== 'undefined' && errorMsg) { %>
+    <div id="auth-msg-data" 
+         data-icon="error" 
+         data-title="Lỗi" 
+         data-text="<%= errorMsg %>"
+         data-redirect="">
+    </div>
+<% } %>
+
 <%- include('footer') %>

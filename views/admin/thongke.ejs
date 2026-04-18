@@ -4,6 +4,28 @@
     <h2><i class="fa fa-chart-line text-primary"></i> BÁO CÁO DOANH THU & LỢI NHUẬN</h2>
 </div>
 
+<div class="filter-section" style="margin-bottom: 25px;">
+    <form action="/admin/thongke" method="GET" id="form-filter-thongke" class="filter-form" style="align-items: center;">
+        <h4 style="margin: 0 15px 0 0; font-size: 15px; color: #555; white-space: nowrap;"><i class="fa fa-filter"></i> Lọc thời gian:</h4>
+        <div class="filter-group" style="min-width: 120px; flex: none;">
+            <select name="month" id="filter-month" style="padding: 8px 12px; border: 1px solid #ced4da; border-radius: 4px; outline: none;">
+                <option value="0" <%= selectedMonth === 0 ? 'selected' : '' %>>Cả năm</option>
+                <% for(let i = 1; i <= 12; i++) { %>
+                    <option value="<%= i %>" <%= selectedMonth === i ? 'selected' : '' %>>Tháng <%= i %></option>
+                <% } %>
+            </select>
+        </div>
+        <div class="filter-group" style="min-width: 120px; flex: none;">
+            <select name="year" id="filter-year" style="padding: 8px 12px; border: 1px solid #ced4da; border-radius: 4px; outline: none;">
+                <% let currentY = new Date().getFullYear(); %>
+                <% for(let i = currentY - 3; i <= currentY + 1; i++) { %>
+                    <option value="<%= i %>" <%= selectedYear === i ? 'selected' : '' %>>Năm <%= i %></option>
+                <% } %>
+            </select>
+        </div>
+    </form>
+</div>
+
 <div class="stats-grid">
     <div class="stat-card revenue">
         <small class="text-muted">TỔNG DOANH THU</small>
@@ -51,7 +73,7 @@
             <% } else { %>
                 <tr>
                     <td colspan="4" class="text-center text-muted fst-italic p-4">
-                        Chưa có sản phẩm nào được giao thành công trong tháng này.
+                        Chưa có đơn hàng nào được giao thành công trong thời gian này.
                     </td>
                 </tr>
             <% } %>
