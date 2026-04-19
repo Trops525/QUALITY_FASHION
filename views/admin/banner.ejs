@@ -1,0 +1,63 @@
+<%- include('header') %>
+
+<div class="banner-container">
+    <h4 class="banner-title">QUẢN LÝ BANNER</h4>
+    <form action="/admin/banner/them" method="POST" enctype="multipart/form-data" class="banner-form">
+        <div style="flex: 2;" class="form-group">
+            <label>Chọn hình ảnh Banner</label>
+            <input type="file" name="hinh_anh" accept="image/*" required>
+        </div>
+        <div style="flex: 1;" class="form-group">
+            <label>Thứ tự hiển thị</label>
+            <input type="number" name="thuTu" value="0">
+        </div>
+        <div class="form-group">
+            <button type="submit" class="btn-add"><i class="fa fa-plus"></i> Thêm Banner</button>
+        </div>
+    </form>
+</div>
+
+<div class="banner-container">
+    <table class="banner-table">
+        <thead>
+            <tr>
+                <th class="text-center" style="width: 15%;">Thứ tự</th>
+                <th>Hình ảnh</th>
+                <th class="text-center" style="width: 15%;">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% if (danhSachBanner && danhSachBanner.length > 0) { %>
+                <% danhSachBanner.forEach(banner => { %>
+                    <tr>
+                        <td class="text-center fw-bold"><%= banner.thuTu %></td>
+                        <td>
+                            <img src="<%= banner.hinhAnh %>" alt="Banner" style="<%= banner.trangThai === 0 ? 'opacity: 0.4;' : '' %>">
+                            <% if (banner.trangThai === 0) { %>
+                                <span class="banner-hidden-text">(Đang ẩn)</span>
+                            <% } %>
+                        </td>
+                        <td class="text-center">
+                            <% if (banner.trangThai === 1) { %>
+                                <a href="/admin/banner/trangthai/<%= banner._id %>" class="btn-hide"><i class="fa fa-eye-slash"></i> Ẩn</a>
+                            <% } else { %>
+                                <a href="/admin/banner/trangthai/<%= banner._id %>" class="btn-show"><i class="fa fa-eye"></i> Hiện</a>
+                            <% } %>
+                            <a href="/admin/banner/xoa/<%= banner._id %>" class="btn-delete" onclick="return confirm('Bạn có chắc muốn xóa banner này?');">
+                                <i class="fa fa-trash"></i> Xóa
+                            </a>
+                        </td>
+                    </tr>
+                <% }) %>
+            <% } else { %>
+                <tr>
+                    <td colspan="3" class="text-center py-4 text-muted">Chưa có banner nào</td>
+                </tr>
+            <% } %>
+        </tbody>
+    </table>
+</div>
+
+</div>
+</body>
+</html>

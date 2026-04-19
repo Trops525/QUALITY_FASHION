@@ -4,15 +4,14 @@
     <h1>Quản lý Danh mục</h1>
 </div>
 
-<!-- Form Thêm Danh Mục Nằm Ngang -->
-<div style="background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px;">
-    <form action="/admin/danhmuc/them" method="POST" style="display: flex; gap: 15px; align-items: flex-end;">
-        <div style="flex: 1;">
-            <label style="display: block; margin-bottom: 8px; font-weight: bold; font-size: 14px;">Thêm danh mục mới</label>
-            <input type="text" name="ten_danh_muc" required placeholder="Nhập tên danh mục..." 
-                   style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; outline: none;">
+<!-- Form Thêm Danh Mục -->
+<div class="dm-add-container">
+    <form action="/admin/danhmuc/them" method="POST" class="dm-add-form">
+        <div class="dm-input-group">
+            <label>Thêm danh mục mới</label>
+            <input type="text" name="ten_danh_muc" required placeholder="Nhập tên danh mục...">
         </div>
-        <button type="submit" style="background: #198754; color: white; border: none; padding: 10px 25px; border-radius: 4px; cursor: pointer; font-weight: bold; height: 42px; transition: 0.2s; white-space: nowrap;">
+        <button type="submit" class="btn-dm-add">
             <i class="fa fa-plus"></i> Thêm danh mục
         </button>
     </form>
@@ -22,7 +21,7 @@
     <table class="product-table">
         <thead>
             <tr>
-                    <th style="width: 60px; text-align: center;">STT</th>
+                    <th class="text-center" style="width: 60px;">STT</th>
                     <th>Tên Danh Mục</th>
                     <th class="text-center" style="width: 150px;">Thao tác</th>
                 </tr>
@@ -31,11 +30,11 @@
                 <% if (typeof danhSachDM !== 'undefined' && danhSachDM.length > 0) { %>
                     <% danhSachDM.forEach((dm, index) => { %>
                         <tr>
-                            <td style="text-align: center;"><%= index + 1 %></td>
-                            <td><strong style="color: #333; font-size: 15px;"><%= dm.TenDanhMuc || dm.tenDanhMuc %></strong></td>
+                            <td class="text-center"><%= index + 1 %></td>
+                            <td><strong class="dm-name"><%= dm.TenDanhMuc || dm.tenDanhMuc %></strong></td>
                             <td class="text-center">
-                                <div class="action-buttons" style="justify-content: center;">
-                                    <button type="button" class="btn-sm" style="background: #0dcaf0; color: #fff; border: none; cursor: pointer;" 
+                                <div class="action-buttons text-center">
+                                    <button type="button" class="btn-sm btn-dm-edit" 
                                             onclick="suaDanhMuc('<%= dm._id %>', '<%= dm.TenDanhMuc || dm.tenDanhMuc %>')">Sửa</button>
                                     <a href="/admin/danhmuc/xoa/<%= dm._id %>" class="btn-sm btn-delete" onclick="return confirm('Bạn có chắc chắn muốn xóa danh mục này không?');">Xóa</a>
                                 </div>
@@ -44,22 +43,10 @@
                     <% }) %>
                 <% } else { %>
                     <tr>
-                        <td colspan="3" style="text-align: center; padding: 40px; color: #888;">Chưa có danh mục nào.</td>
+                        <td colspan="3" class="text-center text-muted" style="padding: 40px;">Chưa có danh mục nào.</td>
                     </tr>
                 <% } %>
             </tbody>
         </table>
     </div>
-
-<script>
-    function suaDanhMuc(id, currentName) {
-        let newName = prompt("Nhập tên danh mục mới:", currentName);
-        if (newName && newName.trim() !== "" && newName !== currentName) {
-            let form = document.createElement('form'); form.method = 'POST'; form.action = '/admin/danhmuc/sua/' + id;
-            let input = document.createElement('input'); input.type = 'hidden'; input.name = 'ten_danh_muc'; input.value = newName;
-            form.appendChild(input); document.body.appendChild(form); form.submit();
-        }
-    }
-</script>
-
 <%- include('footer') %>

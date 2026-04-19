@@ -248,6 +248,45 @@ window.submitFormWithPage = function(pageNumber) {
             radio.addEventListener('change', toggleQR);
         });
     }
+    // ==========================================
+    // 6.1 XỬ LÝ CẬP NHẬT THÔNG TIN ĐƠN HÀNG
+    // ==========================================
+    const btnUpdateInfos = document.querySelectorAll('.btn-update-info');
+    btnUpdateInfos.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const orderId = this.getAttribute('data-id');
+            const currentAddress = this.getAttribute('data-address');
+            const currentPhone = this.getAttribute('data-phone');
+            
+            Swal.fire({
+                title: 'Cập nhật thông tin nhận hàng',
+                html:
+                    '<input id="swal-input-phone" class="swal2-input" placeholder="Số điện thoại" value="' + currentPhone + '">' +
+                    '<input id="swal-input-address" class="swal2-input" placeholder="Địa chỉ giao hàng" value="' + currentAddress + '">',
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonText: 'Lưu thay đổi',
+                cancelButtonText: 'Hủy',
+                preConfirm: () => {
+                    const phone = document.getElementById('swal-input-phone').value.trim();
+                    const address = document.getElementById('swal-input-address').value.trim();
+                    if (!phone || !address) { Swal.showValidationMessage('Vui lòng nhập đầy đủ thông tin!'); }
+                    else if (!/^[0-9]{10}$/.test(phone)) { Swal.showValidationMessage('Số điện thoại phải gồm 10 chữ số!'); }
+                    return { phone, address };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '/donhang/capnhat/' + orderId;
+                    form.innerHTML = `<input type="hidden" name="dienThoai" value="${result.value.phone}"><input type="hidden" name="diaChi" value="${result.value.address}">`;
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        });
+    });
+
 
 // ==========================================
 // 7. TRANG TT TÀI KHOẢN (Hiệu ứng lật Form & Thông báo)

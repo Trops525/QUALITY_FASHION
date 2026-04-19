@@ -1,35 +1,34 @@
+// Khởi tạo kết nối Socket.io cho tính năng Chat
+const socket = typeof io !== 'undefined' ? io() : null;
+
 document.addEventListener('DOMContentLoaded', function () {
     // =========================================
-    // 1. XỬ LÝ XÁC NHẬN (CONFIRM DIALOG)
+    // 1. CHỨC NĂNG HỘP THOẠI XÁC NHẬN (CONFIRM DIALOG)
     // =========================================
     document.querySelectorAll('a[data-confirm], button[data-confirm]').forEach(function (element) {
         element.addEventListener('click', function (event) {
             const message = element.getAttribute('data-confirm');
-            if (!confirm(message)) {
-                event.preventDefault();
-            }
+            if (!confirm(message)) event.preventDefault();
         });
     });
 
     // =========================================
-    // 2. QUẢN LÝ DANH SÁCH SẢN PHẨM (CHECKBOX & BULK ACTIONS)
+    // 2. XỬ LÝ CHECKBOX VÀ XÓA HÀNG LOẠT (BULK ACTIONS)
     // =========================================
     const checkAll = document.getElementById('check-all');
     const itemCheckboxes = document.querySelectorAll('.item-checkbox');
     const bulkActions = document.getElementById('bulk-actions');
     const countDisplay = document.getElementById('count');
 
+    // Hàm cập nhật trạng thái hiển thị của thanh công cụ
     function updateBulkActions() {
         if (!bulkActions || !countDisplay) return;
         
-        // Đếm số lượng checkbox đang được tích
-        const checkedItems = document.querySelectorAll('.item-checkbox:checked');
-        const checkedCount = checkedItems.length;
-
-        countDisplay.textContent = checkedCount;
+        let checkedCount = 0;
+        itemCheckboxes.forEach(cb => { if (cb.checked) checkedCount++; });
         
-        // Hiện thanh công cụ bằng 'flex' để khớp với CSS của bạn
-        bulkActions.style.display = checkedCount > 0 ? 'flex' : 'none';
+        countDisplay.textContent = checkedCount;
+        bulkActions.style.display = checkedCount > 0 ? 'block' : 'none';
         
         // Tự động tích/bỏ tích ô "Chọn tất cả" nếu người dùng chọn hết các ô con
         if (checkAll) {
@@ -37,21 +36,19 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    // Sự kiện khi bấm ô "Chọn tất cả"
     if (checkAll) {
         checkAll.addEventListener('change', function() {
-            itemCheckboxes.forEach(cb => {
-                cb.checked = this.checked;
-            });
+            itemCheckboxes.forEach(cb => { cb.checked = this.checked; });
             updateBulkActions();
         });
     }
 
-    itemCheckboxes.forEach(cb => {
-        cb.addEventListener('change', updateBulkActions);
-    });
+    // Sự kiện khi bấm từng ô checkbox sản phẩm
+    itemCheckboxes.forEach(cb => { cb.addEventListener('change', updateBulkActions); });
 
     // =========================================
-    // 3. XỬ LÝ TRANG THÊM/SỬA SẢN PHẨM
+    // 3. FORM THÊM/SỬA SẢN PHẨM (XỬ LÝ THÊM BIẾN THỂ & ẢNH PREVIEW)
     // =========================================
     const btnAddVariant = document.getElementById('btn-add-variant');
     const variantContainer = document.getElementById('variant-container');
@@ -59,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (btnAddVariant && variantContainer) {
         btnAddVariant.addEventListener('click', function() {
             const mauSacInputs = document.querySelectorAll('.input-mau-sac');
-            let lastColor = mauSacInputs.length > 0 ? mauSacInputs[mauSacInputs.length - 1].value : "";
+            const lastColor = mauSacInputs.length > 0 ? mauSacInputs[mauSacInputs.length - 1].value : "";
 
             const newRow = document.createElement('div');
             newRow.className = 'variant-row';
@@ -72,8 +69,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     <label>Kích thước (Size):</label>
                     <select name="kich_thuoc[]" class="select-kich-thuoc" required>
                         <option value="" selected>-- Chọn Size --</option>
-                        <option value="S">S</option><option value="M">M</option><option value="L">L</option>
-                        <option value="XL">XL</option><option value="XXL">XXL</option><option value="Freesize">Freesize</option>
+                        <option value="S">S</option>
+                        <option value="M">M</option>
+                        <option value="L">L</option>
+                        <option value="XL">XL</option>
+                        <option value="XXL">XXL</option>
+                        <option value="Freesize">Freesize</option>
                     </select>
                 </div>
                 <div class="form-col form-group" style="margin-bottom: 0;">
@@ -86,7 +87,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Xem trước ảnh
+    // Tính năng: Xem trước hình ảnh khi upload
     const imageInput = document.getElementById('hinh_anh');
     const imagePreview = document.getElementById('image-preview');
     if (imageInput && imagePreview) {
@@ -97,14 +98,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 reader.onload = e => {
                     imagePreview.src = e.target.result;
                     imagePreview.style.display = 'block';
-                }
+                };
                 reader.readAsDataURL(file);
             }
         });
     }
 
     // =========================================
-    // 4. XỬ LÝ TRANG THÊM NGƯỜI DÙNG
+    // 4. KIỂM TRA TÍNH HỢP LỆ FORM THÊM NGƯỜI DÙNG
     // =========================================
     const formThemNguoiDung = document.getElementById('form-them-nguoi-dung');
     if (formThemNguoiDung) {
@@ -115,74 +116,16 @@ document.addEventListener('DOMContentLoaded', function () {
             const mk = document.querySelector('input[name="MatKhau"]').value;
             const xacNhanMk = document.querySelector('input[name="XacNhanMatKhau"]').value;
 
-            if (tenDN.length <= 3) {
-                e.preventDefault();
-                return alert('Tên đăng nhập phải dài hơn 3 ký tự!');
-            }
-            if (!email.includes('@')) {
-                e.preventDefault();
-                return alert('Vui lòng nhập đúng địa chỉ Email!');
-            }
-            if (!/^[0-9]{10}$/.test(sdt)) {
-                e.preventDefault();
-                return alert('Số điện thoại phải gồm đúng 10 chữ số!');
-            }
-            if (mk.length <= 4) {
-                e.preventDefault();
-                return alert('Mật khẩu phải dài hơn 4 ký tự!');
-            }
-            if (mk !== xacNhanMk) {
-                e.preventDefault();
-                return alert('Xác nhận mật khẩu không khớp!');
-            }
+            if (tenDN.length <= 3) { e.preventDefault(); return alert('Tên đăng nhập phải dài hơn 3 ký tự!'); }
+            if (!email.includes('@')) { e.preventDefault(); return alert('Vui lòng nhập đúng địa chỉ Email!'); }
+            if (!/^[0-9]{10}$/.test(sdt)) { e.preventDefault(); return alert('Số điện thoại phải gồm đúng 10 chữ số!'); }
+            if (mk.length <= 4) { e.preventDefault(); return alert('Mật khẩu phải dài hơn 4 ký tự!'); }
+            if (mk !== xacNhanMk) { e.preventDefault(); return alert('Xác nhận mật khẩu không khớp!'); }
         });
     }
-});
-
 
 // =========================================
-// 5. XỬ LÝ LOGIC TRANG DANH SÁCH SP
-// =========================================
-document.addEventListener('DOMContentLoaded', function() {
-    const checkAll = document.getElementById('check-all');
-    const itemCheckboxes = document.querySelectorAll('.item-checkbox');
-    const bulkActions = document.getElementById('bulk-actions');
-    const countDisplay = document.getElementById('count');
-
-    // Hàm đếm số lượng tick và hiện thanh công cụ
-    function updateBulkActions() {
-        if (!bulkActions || !countDisplay) return;
-        let checkedCount = 0;
-        itemCheckboxes.forEach(cb => {
-            if (cb.checked) checkedCount++;
-        });
-
-        countDisplay.textContent = checkedCount;
-        bulkActions.style.display = checkedCount > 0 ? 'block' : 'none';
-        
-        // Cập nhật lại trạng thái của nút Check All
-        if (checkAll) {
-            checkAll.checked = (checkedCount === itemCheckboxes.length && itemCheckboxes.length > 0);
-        }
-    }
-
-    // Sự kiện khi bấm ô "Chọn tất cả" trên cùng
-    if (checkAll) {
-        checkAll.addEventListener('change', function() {
-            itemCheckboxes.forEach(cb => {
-                cb.checked = this.checked;
-            });
-            updateBulkActions();
-        });
-    }
-
-    // Sự kiện khi bấm từng ô checkbox của mỗi sản phẩm
-    itemCheckboxes.forEach(cb => {
-        cb.addEventListener('change', updateBulkActions);
-    });
-
-    // =========================================
-    // 6. XỬ LÝ TRANG THỐNG KÊ (Lọc thời gian)
+    // 5. XỬ LÝ TRANG THỐNG KÊ (Lọc theo thời gian)
     // =========================================
     const formFilterThongKe = document.getElementById('form-filter-thongke');
     if (formFilterThongKe) {
@@ -192,18 +135,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (filterMonth) filterMonth.addEventListener('change', () => formFilterThongKe.submit());
         if (filterYear) filterYear.addEventListener('change', () => formFilterThongKe.submit());
     }
-});
-// ==========================================
-// LOGIC REAL-TIME CHAT CHO ADMIN
-// ==========================================
-const socket = io();
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Tìm lấy ID của người khách đang được Admin chọn
+    // =========================================
+    // 6. LOGIC REAL-TIME CHAT CHO ADMIN
+    // =========================================
     const receiverIdInput = document.getElementById('receiverId');
     const receiverId = receiverIdInput ? receiverIdInput.value : null;
 
-    if (receiverId) {
+    if (receiverId && socket) {
         const btnAdminSend = document.getElementById('btnAdminSend');
         const adminInput = document.getElementById('adminInput');
         const chatWindow = document.getElementById('chatWindow');
@@ -250,3 +189,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+
+
+// Xử lý sửa tên danh mục
+function suaDanhMuc(id, currentName) {
+    let newName = prompt("Nhập tên danh mục mới:", currentName);
+    if (newName && newName.trim() !== "" && newName !== currentName) {
+        let form = document.createElement('form'); form.method = 'POST'; form.action = '/admin/danhmuc/sua/' + id;
+        let input = document.createElement('input'); input.type = 'hidden'; input.name = 'ten_danh_muc'; input.value = newName;
+        form.appendChild(input); document.body.appendChild(form); form.submit();
+    }
+}

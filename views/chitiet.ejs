@@ -26,6 +26,7 @@
                 
                 <form action="/giohang/them" method="POST">
                     <input type="hidden" name="idSanPham" value="<%= sanpham._id %>">
+                    <input type="hidden" name="mauSac" value="<%= mangBienThe.length > 0 ? mangBienThe[0].mauSac : sanpham.tenSanPham.split(' ').pop() %>">
                     
                     <div class="mb-4">
                         <label class="fw-bold font-13 d-block mb-2">Màu sắc hiện có:</label>
@@ -69,7 +70,7 @@
                         <button type="submit" name="action" value="add" class="btn-add-cart-outline">THÊM VÀO GIỎ HÀNG</button>
                         <button type="submit" name="action" value="buy" class="btn-buy-now">MUA NGAY</button>
                     </div>
-                    <a href="/sanpham" class="text-secondary font-13 text-decoration-none">← Tiếp tục mua sắm</a>
+                    <a href="/sanpham" class="text-secondary font-13 text-decoration-none">← Tiếp tục mua sắm sản phẩm </a>
                 </form>
             </div>
         </div>

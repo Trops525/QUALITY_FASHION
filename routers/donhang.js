@@ -77,4 +77,25 @@ router.get('/', async (req, res) => {
     }
 });
 
+// POST: Xử lý cập nhật thông tin đơn hàng (Chỉ khi đang xử lý)
+router.post('/capnhat/:id', async (req, res) => {
+    if (!req.session.MaNguoiDung) return res.redirect('/dangnhap');
+    
+    try {
+        let order = await DonHang.findOne({ _id: req.params.id, idNguoiDung: req.session.MaNguoiDung });
+        
+        if (order && order.tinhTrang === 'Đang xử lý') {
+            order.khachHang.diaChi = req.body.diaChi;
+            order.khachHang.dienThoai = req.body.dienThoai;
+            await order.save();
+            req.session.success = 'Cập nhật thông tin nhận hàng thành công!';
+        } else {
+            req.session.error = 'Đơn hàng này không thể cập nhật thông tin nữa!';
+        }
+    } catch (err) {
+        console.log(err);
+    }
+    res.redirect('/donhang?tab=active');
+});
+
 module.exports = router;

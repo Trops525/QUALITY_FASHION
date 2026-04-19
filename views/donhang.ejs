@@ -82,7 +82,7 @@
                         <div class="mb-2">Tổng tiền: <strong style="font-size: 16px; color: #d0021b;"><%= (dh.tongTien || 0).toLocaleString('vi-VN') %> đ</strong></div>
                         
                         <% if (dh.tinhTrang === 'Đang xử lý') { %>
-                            <a href="#" class="btn-order">Cập nhật thông tin</a>
+                            <a href="javascript:void(0)" class="btn-order btn-update-info" data-id="<%= dh._id %>" data-address="<%= dh.khachHang ? dh.khachHang.diaChi : '' %>" data-phone="<%= dh.khachHang ? dh.khachHang.dienThoai : '' %>">Cập nhật thông tin</a>
                             <a href="/donhang?action=cancel&id=<%= dh._id %>&tab=<%= tab %>" class="btn-order btn-order-danger" onclick="return confirm('Bạn chắc chắn muốn hủy đơn hàng này?');">Hủy đơn hàng</a>
                         <% } else if (dh.tinhTrang === 'Đang giao' || dh.tinhTrang === 'Đã xác nhận') { %>
                             <a href="/donhang?action=danhan&id=<%= dh._id %>&tab=<%= tab %>" class="btn-order btn-order-success" onclick="return confirm('Xác nhận đã nhận hàng?');">Đã nhận hàng</a>

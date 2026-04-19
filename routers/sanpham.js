@@ -84,8 +84,13 @@ router.get('/chitiet/:id', async (req, res) => {
             return res.send('Không tìm thấy sản phẩm này!');
         }
 
-        // 2. TÌM CÁC SẢN PHẨM CÙNG MÃ (ĐỂ LẤY MÀU SẮC)
-        var spCungLoai = await SanPham.find({ maSanPham: sp.maSanPham });
+        // 2. TÌM CÁC SẢN PHẨM CÙNG MẪU (ĐỂ LẤY MÀU SẮC LIÊN KẾT NỐI VỚI NHAU)
+        // Cắt bỏ phần đuôi màu sắc của mã sản phẩm (Ví dụ: "SHORT_PROMAX_BLACK" -> "SHORT_PROMAX")
+        let parts = sp.maSanPham.split('_');
+        let maGoc = parts.length > 1 ? parts.slice(0, -1).join('_') : sp.maSanPham;
+        
+        // Tìm tất cả các sản phẩm có mã bắt đầu bằng mã gốc này
+        var spCungLoai = await SanPham.find({ maSanPham: { $regex: '^' + maGoc + '(_|$)' } });
         
         // Tạo mảng danh sách Màu + ID để EJS tạo nút bấm
         var listMauSac = spCungLoai.map(item => {

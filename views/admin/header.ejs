@@ -6,6 +6,7 @@
     <title><%= typeof title !== 'undefined' ? title : 'QUALITY ADMIN' %></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/css/admin.css">
+    <script src="/js/admin.js" defer></script>
 </head>
 <body>
 
@@ -35,16 +36,19 @@
     <a href="/admin/danhgia" class="<%= typeof currentPath !== 'undefined' && currentPath === '/admin/danhgia' ? 'active' : '' %>">
         <i class="fa fa-star"></i> Quản lý đánh giá
     </a>
+    <a href="/admin/banner" class="<%= (typeof currentPath !== 'undefined' && currentPath === '/admin/banner') ? 'active' : '' %>">
+        <i class="fa fa-image"></i> Quản lý Banner
+    </a>
     <% if (session && session.QuyenHan === 1) { %>
         <a href="/admin/nguoidung" class="<%= (typeof currentPath !== 'undefined' && currentPath === '/admin/nguoidung') ? 'active' : '' %>">
             <i class="fa fa-users"></i> Quản lý người dùng
         </a>
     <% } %>
 
-    <a href="/" target="_blank" style="color: #ffc107; border-top: 1px solid #3d4144; margin-top: 20px;">
+    <a href="/" class="btn-home-link">
         <i class="fa fa-external-link-alt"></i> Xem trang chủ
     </a>
-    <a href="/dangxuat" style="margin-top: 50px; background: #212529;">
+    <a href="/dangxuat" class="btn-logout-link">
         <i class="fa fa-sign-out-alt"></i> Đăng xuất
     </a>
 </div>

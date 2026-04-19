@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const SanPham = require('../models/sanpham');
+const Banner = require('../models/banner');
 
 // GET: Xử lý hiển thị Trang chủ
 router.get('/', async (req, res) => {
@@ -26,11 +27,14 @@ router.get('/', async (req, res) => {
         const totalPages = Math.ceil(totalItems / limit);
         const skip = (page - 1) * limit;
 
-        // 4. Truy vấn sản phẩm từ MongoDB
+        // 4. Truy vấn sản phẩm và banner từ MongoDB
         const sanpham = await SanPham.find(filter)
             .sort({ _id: -1 }) // Sản phẩm mới nhất lên đầu
             .skip(skip)
             .limit(limit);
+
+        // Lấy danh sách banner (chỉ lấy các banner đang có trạng thái hiển thị = 1)
+        const banners = await Banner.find({ trangThai: 1 }).sort({ thuTu: 1 });
 
         // 5. Gửi dữ liệu sang file EJS để hiển thị
         res.render('index', {
@@ -38,6 +42,7 @@ router.get('/', async (req, res) => {
             sanpham: sanpham,
             currentPage: page,
             totalPages: totalPages,
+            banners: banners,
             query: req.query,
             session: req.session || {}
         });

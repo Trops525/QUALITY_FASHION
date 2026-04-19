@@ -24,7 +24,15 @@
             <div class="info-line" style="margin-bottom: 8px;"><strong>Người nhận:</strong> <%= ten %></div>
             <div class="info-line" style="margin-bottom: 8px;"><strong>Số điện thoại:</strong> <%= sdt %></div>
             <div class="info-line" style="margin-bottom: 8px;"><strong>Địa chỉ:</strong> <%= dc %></div>
-            <div class="info-line"><strong>Ngày đặt:</strong> <%= order.ngayDat ? new Date(order.ngayDat).toLocaleString('vi-VN') : 'N/A' %></div>
+            <div class="info-line" style="margin-bottom: 8px;"><strong>Ngày đặt:</strong> <%= order.ngayDat ? new Date(order.ngayDat).toLocaleString('vi-VN') : 'N/A' %></div>
+            <div class="info-line">
+                <strong>Người duyệt đơn:</strong> 
+                <% if (order.idNhanVienDuyet) { %>
+                    <span style="background: #17a2b8; color: white; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: bold;"><%= order.idNhanVienDuyet.HoTen || order.idNhanVienDuyet.hoTen %></span>
+                <% } else { %>
+                    <span style="color: #6c757d; font-style: italic;">Chưa duyệt</span>
+                <% } %>
+            </div>
         </div>
 
         <div class="table-container" style="background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.05);">

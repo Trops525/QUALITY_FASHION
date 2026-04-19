@@ -80,11 +80,11 @@
                         </td>
                         <td class="text-center">
                             <div class="action-buttons" style="justify-content: center; flex-direction: column; gap: 5px;">
-                                <button type="button" class="btn-sm" style="background: #0dcaf0; color: #fff; border: none; cursor: pointer; width: 100%;" 
+                            <button type="button" class="btn-sm" style="background: #0dcaf0; color: #fff; width: 100%; margin: 0;" 
                                         data-id="<%= item._id %>" data-danhmuc="<%= item.DanhMuc %>" data-cauhoi="<%= item.CauHoi %>" 
                                         data-traloi="<%= item.TraLoi %>" data-thutu="<%= item.ThuTu %>" data-trangthai="<%= item.TrangThai %>"
-                                        onclick="editFAQ(this)"><i class="fa fa-edit"></i> Sửa</button>
-                                <a href="/admin/cskh/xoa/<%= item._id %>" class="btn-sm btn-delete" style="text-decoration: none;" onclick="return confirm('Bạn chắc chắn muốn xóa phản hồi này?');"><i class="fa fa-trash"></i> Xóa</a>
+                                    onclick="editFAQ(this)"><i class="fa fa-edit" style="margin-right: 4px;"></i> Sửa</button>
+                            <a href="/admin/cskh/xoa/<%= item._id %>" class="btn-sm btn-delete" style="width: 100%; margin: 0;" onclick="return confirm('Bạn chắc chắn muốn xóa phản hồi này?');"><i class="fa fa-trash" style="margin-right: 4px;"></i> Xóa</a>
                             </div>
                         </td>
                     </tr>

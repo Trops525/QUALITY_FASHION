@@ -1,4 +1,4 @@
-﻿﻿﻿﻿const express = require('express');
+﻿﻿const express = require('express');
 const router = express.Router();
 const SanPham = require('../models/sanpham'); 
 const DanhMuc = require('../models/danhmuc'); 
@@ -6,6 +6,7 @@ const ChiTietDonHang = require('../models/chitietdonhang');
 const DonHang = require('../models/donhang'); 
 const NguoiDung = require('../models/nguoidung'); 
 const CSKH = require('../models/cskh');
+const Banner = require('../models/banner');
 const bcrypt = require('bcryptjs');
 
 // --- CẤU HÌNH CLOUDINARY ---
@@ -30,20 +31,20 @@ const upload = multer({ storage: storage });
 
 // --- ĐƯỜNG DẪN GỐC CỦA ADMIN ---
 router.get('/', (req, res) => {
-    if (!req.session.QuyenHan || req.session.QuyenHan !== 1) {
+    if (!req.session.QuyenHan || ![1, 3].includes(req.session.QuyenHan)) {
         return res.redirect('/');
     }
     res.redirect('/admin/sanpham');
 });
 
 // ==========================================
-// QUẢN LÝ SẢN PHẨM
+// 1. QUẢN LÝ SẢN PHẨM
 // ==========================================
 
-// 1. GET: Danh sách sản phẩm (Đã thêm logic Lọc & Nạp Danh mục)
+// GET: Danh sách sản phẩm (Bao gồm logic Lọc & Phân loại)
 router.get('/sanpham', async (req, res) => {
     try {
-        if (!req.session.QuyenHan || req.session.QuyenHan !== 1) return res.redirect('/');
+        if (!req.session.QuyenHan || ![1, 3].includes(req.session.QuyenHan)) return res.redirect('/');
         
         const { search, category, status, sort } = req.query;
         const danhSachDM = await DanhMuc.find();
@@ -98,10 +99,11 @@ router.get('/sanpham', async (req, res) => {
         res.status(500).send("Lỗi Server"); 
     }
 });
-// 2. GET: Xóa 1 sản phẩm
+
+// GET: Xóa 1 sản phẩm
 router.get('/sanpham/xoa/:id', async (req, res) => {
     try {
-        if (!req.session.QuyenHan || req.session.QuyenHan !== 1) return res.redirect('/');
+        if (!req.session.QuyenHan || ![1, 3].includes(req.session.QuyenHan)) return res.redirect('/');
         const sp = await SanPham.findById(req.params.id);
         if (sp && sp.hinhAnh && sp.hinhAnh.includes('cloudinary.com')) {
             const publicId = sp.hinhAnh.split('/').slice(-2).join('/').split('.')[0];
@@ -115,10 +117,10 @@ router.get('/sanpham/xoa/:id', async (req, res) => {
     }
 });
 
-// 3. POST: Xóa hàng loạt
+// POST: Xóa hàng loạt nhiều sản phẩm
 router.post('/sanpham/xoanhieu', async (req, res) => {
     try {
-        if (!req.session.QuyenHan || req.session.QuyenHan !== 1) return res.redirect('/');
+        if (!req.session.QuyenHan || ![1, 3].includes(req.session.QuyenHan)) return res.redirect('/');
         let selectedIds = req.body.selected_ids;
         if (typeof selectedIds === 'string') selectedIds = [selectedIds];
 
@@ -137,17 +139,17 @@ router.post('/sanpham/xoanhieu', async (req, res) => {
     } catch (err) { res.redirect('/admin/sanpham'); }
 });
 
-// 4. GET: Form thêm sản phẩm
+// GET: Hiển thị Form thêm sản phẩm
 router.get('/sanpham/them', async (req, res) => {
-    if (!req.session.QuyenHan || req.session.QuyenHan !== 1) return res.redirect('/');
+    if (!req.session.QuyenHan || ![1, 3].includes(req.session.QuyenHan)) return res.redirect('/');
     const danhSachDM = await DanhMuc.find(); 
     res.render('admin/themsanpham', { title: 'Thêm SP', danhSachDM, session: req.session, currentPath: '/admin/sanpham' });
 });
 
-// 5. POST: Xử lý thêm sản phẩm (Đã thêm logic Chặn trùng mã SP)
+// POST: Xử lý thêm sản phẩm mới vào CSDL
 router.post('/sanpham/them', upload.single('hinh_anh'), async (req, res) => {
     try {
-        if (!req.session.QuyenHan || req.session.QuyenHan !== 1) return res.redirect('/');
+        if (!req.session.QuyenHan || ![1, 3].includes(req.session.QuyenHan)) return res.redirect('/');
 
         // BỔ SUNG: Kiểm tra trùng mã sản phẩm trước khi làm bất cứ việc gì khác
         const { ma_san_pham } = req.body;
@@ -186,149 +188,10 @@ router.post('/sanpham/them', upload.single('hinh_anh'), async (req, res) => {
     }
 });
 
-// ==========================================
-// QUẢN LÝ DANH MỤC
-// ==========================================
-
-router.get('/danhmuc', async (req, res) => {
-    try {
-        if (!req.session.QuyenHan || req.session.QuyenHan !== 1) return res.redirect('/');
-        const danhSachDM = await DanhMuc.find().sort({ _id: -1 });
-        res.render('admin/danhmuc', {
-            title: 'Quản lý Danh Mục - QUALITY ADMIN',
-            danhSachDM,
-            session: req.session,
-            currentPath: '/admin/danhmuc'
-        });
-    } catch (err) { res.status(500).send("Lỗi tải danh mục"); }
-});
-
-router.post('/danhmuc/them', async (req, res) => {
-    try {
-        if (!req.session.QuyenHan || req.session.QuyenHan !== 1) return res.redirect('/');
-        const tenDM = req.body.ten_danh_muc;
-        if (tenDM) await DanhMuc.create({ TenDanhMuc: tenDM, tenDanhMuc: tenDM });
-        res.redirect('/admin/danhmuc');
-    } catch (err) { res.redirect('/admin/danhmuc'); }
-});
-
-router.get('/danhmuc/xoa/:id', async (req, res) => {
-    try {
-        if (!req.session.QuyenHan || req.session.QuyenHan !== 1) return res.redirect('/');
-        // Kiểm tra xem danh mục có đang chứa sản phẩm nào không
-        const count = await SanPham.countDocuments({ idDanhMuc: req.params.id });
-        if (count > 0) {
-            return res.send(`<script>alert('Không thể xóa! Đang có ${count} sản phẩm thuộc danh mục này.'); window.location.href='/admin/danhmuc';</script>`);
-        }
-        await DanhMuc.findByIdAndDelete(req.params.id);
-        res.redirect('/admin/danhmuc');
-    } catch (err) { res.redirect('/admin/danhmuc'); }
-});
-
-router.post('/danhmuc/sua/:id', async (req, res) => {
-    try {
-        if (!req.session.QuyenHan || req.session.QuyenHan !== 1) return res.redirect('/');
-        const tenDM = req.body.ten_danh_muc;
-        if (tenDM) await DanhMuc.findByIdAndUpdate(req.params.id, { TenDanhMuc: tenDM, tenDanhMuc: tenDM });
-        res.redirect('/admin/danhmuc');
-    } catch (err) { res.redirect('/admin/danhmuc'); }
-});
-
-// ==========================================
-// QUẢN LÝ ĐƠN HÀNG
-// ==========================================
-
-router.get('/donhang', async (req, res) => {
-    if (!req.session.QuyenHan || req.session.QuyenHan !== 1) return res.redirect('/');
-    const dsDonHang = await DonHang.find().populate('idNguoiDung').sort({ ngayDat: -1 });
-    res.render('admin/donhang', { dsDonHang });
-});
-
-router.get('/donhang/chitiet/:id', async (req, res) => {
-    if (!req.session.QuyenHan || req.session.QuyenHan !== 1) return res.redirect('/');
-    const order = await DonHang.findById(req.params.id).populate('idNguoiDung');
-    const items = await ChiTietDonHang.find({ idDonHang: req.params.id }).populate('idSanPham'); 
-    res.render('admin/chitietdonhang', { order, items });
-});
-
-router.get('/donhang/xacnhan/:id', async (req, res) => {
-    if (!req.session.QuyenHan || req.session.QuyenHan !== 1) return res.redirect('/');
-    
-    try {
-        const order = await DonHang.findById(req.params.id);
-        
-        // Chỉ trừ số lượng khi đơn hàng đang ở trạng thái mới (chưa duyệt)
-        if (order && order.tinhTrang === 'Đang xử lý') {
-            const items = await ChiTietDonHang.find({ idDonHang: req.params.id });
-            
-            for (let item of items) {
-                console.log(`[ADMIN] Đang trừ kho cho SP: ${item.idSanPham}, Màu: ${item.mauSac}, Size: ${item.kichThuoc}, SL: ${item.soLuong}`);
-                const updateResult = await SanPham.findByIdAndUpdate(item.idSanPham, {
-                    $inc: { 
-                        "bienThe.$[elem].soLuong": -item.soLuong,
-                        "luotMua": item.soLuong // Cập nhật lượt mua tại đây
-                    }
-                }, {
-                    arrayFilters: [{ "elem.kichThuoc": item.kichThuoc, "elem.mauSac": item.mauSac }],
-                    new: true // Trả về tài liệu đã được sửa đổi
-                });
-                if (!updateResult) {
-                    console.warn(`[ADMIN] Cảnh báo: Không tìm thấy SP ${item.idSanPham} hoặc biến thể không khớp để trừ kho.`);
-                }
-            }
-            
-            order.tinhTrang = 'Đã xác nhận';
-            await order.save();
-            req.session.success = 'Đã duyệt đơn hàng, trừ kho và cập nhật lượt mua thành công!';
-        } else {
-            req.session.error = `Đơn hàng đang ở trạng thái "${order ? order.tinhTrang : 'không tồn tại'}", không thể duyệt.`;
-        }
-        res.redirect('/admin/donhang');
-    } catch (err) {
-        console.error("[ADMIN] Lỗi khi duyệt đơn hàng và trừ kho:", err);
-        req.session.error = 'Đã xảy ra lỗi khi duyệt đơn hàng.';
-        res.redirect('/admin/donhang');
-    }
-});
-router.get('/donhang/xoa/:id', async (req, res) => {
-    try {
-        if (!req.session.QuyenHan || req.session.QuyenHan !== 1) return res.redirect('/');
-        
-        // 1. Lấy thông tin đơn hàng trước khi xóa
-        const order = await DonHang.findById(req.params.id);
-        
-        // 2. Nếu đơn hàng ở trạng thái đã duyệt (đã bị trừ kho) thì tiến hành hoàn lại kho
-        if (order && ['Đã xác nhận', 'Đang giao', 'Đã giao'].includes(order.tinhTrang)) {
-            const items = await ChiTietDonHang.find({ idDonHang: req.params.id });
-            for (let item of items) {
-                await SanPham.findByIdAndUpdate(item.idSanPham, {
-                    $inc: { 
-                        "bienThe.$[elem].soLuong": item.soLuong, // Cộng lại số lượng dương
-                        "luotMua": -item.soLuong // Trừ đi lượt mua đã tính
-                    }
-                }, { arrayFilters: [{ "elem.kichThuoc": item.kichThuoc, "elem.mauSac": item.mauSac }] });
-            }
-        }
-
-        // Xóa tất cả các chi tiết thuộc về đơn hàng này trước để dọn sạch rác DB
-        await ChiTietDonHang.deleteMany({ idDonHang: req.params.id });
-        
-        // Sau đó mới xóa đơn hàng chính
-        await DonHang.findByIdAndDelete(req.params.id);
-        
-        res.send("<script>alert('Đã xóa đơn hàng thành công!'); window.location.href='/admin/donhang';</script>");
-    } catch (err) {
-        console.log("Lỗi xóa đơn hàng:", err);
-        res.send("<script>alert('Lỗi khi xóa đơn hàng!'); window.location.href='/admin/donhang';</script>");
-    }
-});
-
-// ==========================================
-// 6. GET: Hiện Form Sửa sản phẩm
-// ==========================================
+// GET: Hiển thị Form Sửa sản phẩm
 router.get('/sanpham/sua/:id', async (req, res) => {
     try {
-        if (!req.session.QuyenHan || req.session.QuyenHan !== 1) return res.redirect('/');
+        if (!req.session.QuyenHan || ![1, 3].includes(req.session.QuyenHan)) return res.redirect('/');
         
         // Tìm sản phẩm theo ID trên thanh địa chỉ
         const sp = await SanPham.findById(req.params.id).populate('idDanhMuc');
@@ -351,12 +214,10 @@ router.get('/sanpham/sua/:id', async (req, res) => {
     }
 });
 
-// ==========================================
-// 7. POST: Xử lý Lưu dữ liệu Sửa sản phẩm
-// ==========================================
+// POST: Xử lý Lưu dữ liệu Sửa sản phẩm
 router.post('/sanpham/sua/:id', upload.single('hinh_anh'), async (req, res) => {
     try {
-        if (!req.session.QuyenHan || req.session.QuyenHan !== 1) return res.redirect('/');
+        if (!req.session.QuyenHan || ![1, 3].includes(req.session.QuyenHan)) return res.redirect('/');
 
         const spId = req.params.id;
         const spCu = await SanPham.findById(spId);
@@ -421,7 +282,145 @@ router.post('/sanpham/sua/:id', upload.single('hinh_anh'), async (req, res) => {
 });
 
 // ==========================================
-// THỐNG KÊ DOANH THU & LỢI NHUẬN
+// 2. QUẢN LÝ DANH MỤC
+// ==========================================
+
+router.get('/danhmuc', async (req, res) => {
+    try {
+        if (!req.session.QuyenHan || ![1, 3].includes(req.session.QuyenHan)) return res.redirect('/');
+        const danhSachDM = await DanhMuc.find().sort({ _id: 1 });
+        res.render('admin/danhmuc', {
+            title: 'Quản lý Danh Mục - QUALITY ADMIN',
+            danhSachDM,
+            session: req.session,
+            currentPath: '/admin/danhmuc'
+        });
+    } catch (err) { res.status(500).send("Lỗi tải danh mục"); }
+});
+
+router.post('/danhmuc/them', async (req, res) => {
+    try {
+        if (!req.session.QuyenHan || ![1, 3].includes(req.session.QuyenHan)) return res.redirect('/');
+        const tenDM = req.body.ten_danh_muc;
+        if (tenDM) await DanhMuc.create({ TenDanhMuc: tenDM, tenDanhMuc: tenDM });
+        res.redirect('/admin/danhmuc');
+    } catch (err) { res.redirect('/admin/danhmuc'); }
+});
+
+router.get('/danhmuc/xoa/:id', async (req, res) => {
+    try {
+        if (!req.session.QuyenHan || ![1, 3].includes(req.session.QuyenHan)) return res.redirect('/');
+        // Kiểm tra xem danh mục có đang chứa sản phẩm nào không
+        const count = await SanPham.countDocuments({ idDanhMuc: req.params.id });
+        if (count > 0) {
+            return res.send(`<script>alert('Không thể xóa! Đang có ${count} sản phẩm thuộc danh mục này.'); window.location.href='/admin/danhmuc';</script>`);
+        }
+        await DanhMuc.findByIdAndDelete(req.params.id);
+        res.redirect('/admin/danhmuc');
+    } catch (err) { res.redirect('/admin/danhmuc'); }
+});
+
+router.post('/danhmuc/sua/:id', async (req, res) => {
+    try {
+        if (!req.session.QuyenHan || ![1, 3].includes(req.session.QuyenHan)) return res.redirect('/');
+        const tenDM = req.body.ten_danh_muc;
+        if (tenDM) await DanhMuc.findByIdAndUpdate(req.params.id, { TenDanhMuc: tenDM, tenDanhMuc: tenDM });
+        res.redirect('/admin/danhmuc');
+    } catch (err) { res.redirect('/admin/danhmuc'); }
+});
+
+// ==========================================
+// 3. QUẢN LÝ ĐƠN HÀNG
+// ==========================================
+
+router.get('/donhang', async (req, res) => {
+    if (!req.session.QuyenHan || ![1, 3].includes(req.session.QuyenHan)) return res.redirect('/');
+    const dsDonHang = await DonHang.find().populate('idNguoiDung').sort({ ngayDat: -1 });
+    res.render('admin/donhang', { dsDonHang });
+});
+
+router.get('/donhang/chitiet/:id', async (req, res) => {
+    if (!req.session.QuyenHan || ![1, 3].includes(req.session.QuyenHan)) return res.redirect('/');
+    const order = await DonHang.findById(req.params.id).populate('idNguoiDung').populate('idNhanVienDuyet');
+    const items = await ChiTietDonHang.find({ idDonHang: req.params.id }).populate('idSanPham'); 
+    res.render('admin/chitietdonhang', { order, items });
+});
+
+router.get('/donhang/xacnhan/:id', async (req, res) => {
+    if (!req.session.QuyenHan || ![1, 3].includes(req.session.QuyenHan)) return res.redirect('/');
+    
+    try {
+        const order = await DonHang.findById(req.params.id);
+        
+        // Chỉ trừ số lượng khi đơn hàng đang ở trạng thái mới (chưa duyệt)
+        if (order && order.tinhTrang === 'Đang xử lý') {
+            const items = await ChiTietDonHang.find({ idDonHang: req.params.id });
+            
+            for (let item of items) {
+                console.log(`[ADMIN] Đang trừ kho cho SP: ${item.idSanPham}, Màu: ${item.mauSac}, Size: ${item.kichThuoc}, SL: ${item.soLuong}`);
+                const updateResult = await SanPham.findByIdAndUpdate(item.idSanPham, {
+                    $inc: { 
+                        "bienThe.$[elem].soLuong": -item.soLuong,
+                        "luotMua": item.soLuong // Cập nhật lượt mua tại đây
+                    }
+                }, {
+                    arrayFilters: [{ "elem.kichThuoc": item.kichThuoc, "elem.mauSac": item.mauSac }],
+                    new: true // Trả về tài liệu đã được sửa đổi
+                });
+                if (!updateResult) {
+                    console.warn(`[ADMIN] Cảnh báo: Không tìm thấy SP ${item.idSanPham} hoặc biến thể không khớp để trừ kho.`);
+                }
+            }
+            
+            order.tinhTrang = 'Đã xác nhận';
+            order.idNhanVienDuyet = req.session.MaNguoiDung;
+            await order.save();
+            req.session.success = 'Đã duyệt đơn hàng, trừ kho và cập nhật lượt mua thành công!';
+        } else {
+            req.session.error = `Đơn hàng đang ở trạng thái "${order ? order.tinhTrang : 'không tồn tại'}", không thể duyệt.`;
+        }
+        res.redirect('/admin/donhang');
+    } catch (err) {
+        console.error("[ADMIN] Lỗi khi duyệt đơn hàng và trừ kho:", err);
+        req.session.error = 'Đã xảy ra lỗi khi duyệt đơn hàng.';
+        res.redirect('/admin/donhang');
+    }
+});
+router.get('/donhang/xoa/:id', async (req, res) => {
+    try {
+        if (!req.session.QuyenHan || ![1, 3].includes(req.session.QuyenHan)) return res.redirect('/');
+        
+        // 1. Lấy thông tin đơn hàng trước khi xóa
+        const order = await DonHang.findById(req.params.id);
+        
+        // 2. Nếu đơn hàng ở trạng thái đã duyệt (đã bị trừ kho) thì tiến hành hoàn lại kho
+        if (order && ['Đã xác nhận', 'Đang giao', 'Đã giao'].includes(order.tinhTrang)) {
+            const items = await ChiTietDonHang.find({ idDonHang: req.params.id });
+            for (let item of items) {
+                await SanPham.findByIdAndUpdate(item.idSanPham, {
+                    $inc: { 
+                        "bienThe.$[elem].soLuong": item.soLuong, // Cộng lại số lượng dương
+                        "luotMua": -item.soLuong // Trừ đi lượt mua đã tính
+                    }
+                }, { arrayFilters: [{ "elem.kichThuoc": item.kichThuoc, "elem.mauSac": item.mauSac }] });
+            }
+        }
+
+        // Xóa tất cả các chi tiết thuộc về đơn hàng này trước để dọn sạch rác DB
+        await ChiTietDonHang.deleteMany({ idDonHang: req.params.id });
+        
+        // Sau đó mới xóa đơn hàng chính
+        await DonHang.findByIdAndDelete(req.params.id);
+        
+        res.send("<script>alert('Đã xóa đơn hàng thành công!'); window.location.href='/admin/donhang';</script>");
+    } catch (err) {
+        console.log("Lỗi xóa đơn hàng:", err);
+        res.send("<script>alert('Lỗi khi xóa đơn hàng!'); window.location.href='/admin/donhang';</script>");
+    }
+});
+
+// ==========================================
+// 4. THỐNG KÊ DOANH THU & LỢI NHUẬN
 // ==========================================
 router.get('/thongke', async (req, res) => {
     try {
@@ -497,11 +496,11 @@ router.get('/thongke', async (req, res) => {
 });
 
 // ==========================================
-// QUẢN LÝ ĐÁNH GIÁ
+// 5. QUẢN LÝ ĐÁNH GIÁ
 // ==========================================
 router.get('/danhgia', async (req, res) => {
     try {
-        if (!req.session.QuyenHan || req.session.QuyenHan !== 1) return res.redirect('/');
+        if (!req.session.QuyenHan || ![1, 3].includes(req.session.QuyenHan)) return res.redirect('/');
         
         const { soSao } = req.query;
 
@@ -534,7 +533,7 @@ router.get('/danhgia', async (req, res) => {
 // GET: Xóa một đánh giá
 router.get('/danhgia/xoa/:idSanPham/:idDanhGia', async (req, res) => {
     try {
-        if (!req.session.QuyenHan || req.session.QuyenHan !== 1) return res.redirect('/');
+        if (!req.session.QuyenHan || ![1, 3].includes(req.session.QuyenHan)) return res.redirect('/');
         
         const { idSanPham, idDanhGia } = req.params;
         
@@ -548,7 +547,7 @@ router.get('/danhgia/xoa/:idSanPham/:idDanhGia', async (req, res) => {
 });
 
 // ==========================================
-// QUẢN LÝ NGƯỜI DÙNG
+// 6. QUẢN LÝ NGƯỜI DÙNG
 // ==========================================
 
 // GET: Hiển thị danh sách người dùng
@@ -683,7 +682,7 @@ router.post('/nguoidung/quyen/:id', async (req, res) => {
 });
 
 // ==========================================
-// QUẢN LÝ CSKH (CÂU HỎI THƯỜNG GẶP - FAQ)
+// 7. QUẢN LÝ CSKH (CÂU HỎI THƯỜNG GẶP - FAQ)
 // ==========================================
 
 router.get('/cskh', async (req, res) => {
@@ -723,6 +722,73 @@ router.get('/cskh/xoa/:id', async (req, res) => {
         await CSKH.findByIdAndDelete(req.params.id);
         res.send("<script>alert('Đã xóa câu hỏi thành công!'); window.location.href='/admin/cskh';</script>");
     } catch (err) { res.send("<script>alert('Lỗi xóa!'); window.location.href='/admin/cskh';</script>"); }
+});
+
+// ==========================================
+// 8. QUẢN LÝ BANNER
+// ==========================================
+
+router.get('/banner', async (req, res) => {
+    try {
+        if (!req.session.QuyenHan || ![1, 3].includes(req.session.QuyenHan)) return res.redirect('/');
+        
+        let danhSachBanner = await Banner.find().sort({ thuTu: 1 });
+        
+        // Nếu chưa có banner nào trong CSDL, tự động nạp 4 banner mặc định để quản lý
+        if (danhSachBanner.length === 0) {
+            const defaultBanners = [
+                { hinhAnh: '/images/banner1.jpg', thuTu: 1 },
+                { hinhAnh: '/images/banner2.jpg', thuTu: 2 },
+                { hinhAnh: '/images/banner3.jpg', thuTu: 3 },
+                { hinhAnh: '/images/banner4.jpg', thuTu: 4 }
+            ];
+            await Banner.insertMany(defaultBanners);
+            danhSachBanner = await Banner.find().sort({ thuTu: 1 });
+        }
+
+        res.render('admin/banner', {
+            title: 'Quản lý Banner - QUALITY ADMIN',
+            danhSachBanner,
+            session: req.session,
+            currentPath: '/admin/banner'
+        });
+    } catch (err) { res.status(500).send("Lỗi tải danh sách banner"); }
+});
+
+router.post('/banner/them', upload.single('hinh_anh'), async (req, res) => {
+    try {
+        if (!req.session.QuyenHan || ![1, 3].includes(req.session.QuyenHan)) return res.redirect('/');
+        if (req.file) {
+            await Banner.create({ hinhAnh: req.file.path, thuTu: parseInt(req.body.thuTu) || 0 });
+        }
+        res.redirect('/admin/banner');
+    } catch (err) { res.redirect('/admin/banner'); }
+});
+
+// Thay đổi trạng thái (Ẩn/Hiện) Banner
+router.get('/banner/trangthai/:id', async (req, res) => {
+    try {
+        if (!req.session.QuyenHan || ![1, 3].includes(req.session.QuyenHan)) return res.redirect('/');
+        const banner = await Banner.findById(req.params.id);
+        if (banner) {
+            banner.trangThai = banner.trangThai === 1 ? 0 : 1;
+            await banner.save();
+        }
+        res.redirect('/admin/banner');
+    } catch (err) { res.redirect('/admin/banner'); }
+});
+
+router.get('/banner/xoa/:id', async (req, res) => {
+    try {
+        if (!req.session.QuyenHan || ![1, 3].includes(req.session.QuyenHan)) return res.redirect('/');
+        const banner = await Banner.findById(req.params.id);
+        if (banner && banner.hinhAnh && banner.hinhAnh.includes('cloudinary.com')) {
+            const publicId = banner.hinhAnh.split('/').slice(-2).join('/').split('.')[0];
+            await cloudinary.uploader.destroy(publicId).catch(err => console.log(err));
+        }
+        await Banner.findByIdAndDelete(req.params.id);
+        res.redirect('/admin/banner');
+    } catch (err) { res.redirect('/admin/banner'); }
 });
 
 module.exports = router;
