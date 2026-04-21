@@ -21,6 +21,7 @@
                 <div class="product-meta-panel">
                     <div>Danh mục: <strong><%= sanpham.idDanhMuc ? (sanpham.idDanhMuc.TenDanhMuc || 'Chưa rõ') : 'Chưa rõ' %></strong></div>
                     <div class="mt-1">Đã bán: <strong><%= sanpham.luotMua || 0 %></strong></div>
+                    <div class="mt-1 text-success">Còn lại: <strong id="soLuongTonKho">0</strong> sản phẩm</div>
                 </div>
                 <h3 class="product-price-detail"><%= giaBan.toLocaleString('vi-VN') %>đ</h3>
                 
@@ -175,6 +176,40 @@
                 <% } %>
             </div>
         </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const bienThe = <%- JSON.stringify(sanpham.bienThe || []) %>;
+                const sizeRadios = document.querySelectorAll('input[name="kichThuoc"]');
+                const quantityDisplay = document.getElementById('soLuongTonKho');
+                const colorInput = document.querySelector('input[name="mauSac"]');
+
+                function updateQuantityAndUI() {
+                    if (!quantityDisplay) return;
+                    const selectedRadio = document.querySelector('input[name="kichThuoc"]:checked');
+                    
+                    // Cập nhật giao diện cho nút chọn kích thước
+                    document.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('active'));
+                    if (selectedRadio) {
+                        const activeSpan = selectedRadio.nextElementSibling;
+                        if (activeSpan && activeSpan.classList.contains('size-btn')) {
+                            activeSpan.classList.add('active');
+                        }
+
+                        const size = selectedRadio.value;
+                        const color = colorInput ? colorInput.value : '';
+                        
+                        const variant = bienThe.find(v => v.kichThuoc === size && v.mauSac === color) 
+                                     || bienThe.find(v => v.kichThuoc === size);
+                        
+                        quantityDisplay.textContent = variant ? variant.soLuong : '0';
+                    }
+                }
+
+                sizeRadios.forEach(radio => radio.addEventListener('change', updateQuantityAndUI));
+                updateQuantityAndUI();
+            });
+        </script>
 
         <% } else { %>
             <div class="text-center py-5">
