@@ -96,10 +96,16 @@ router.get('/chitiet/:id', async (req, res) => {
         var listMauSac = spCungLoai.map(item => {
             // Giả định màu sắc nằm ở biến thể đầu tiên, hoặc lấy từ tên sản phẩm
             let mau = item.bienThe && item.bienThe.length > 0 ? item.bienThe[0].mauSac : item.tenSanPham.split(' ').pop();
+            
+            // Tính tổng tồn kho của toàn bộ các size thuộc màu này
+            let tongKho = 0;
+            if (item.bienThe) item.bienThe.forEach(v => tongKho += (v.soLuong || 0));
+            
             return {
                 id: item._id,
                 mauSac: mau,
-                isActive: item._id.toString() === id.toString() // Kiểm tra xem có phải màu đang xem không
+                isActive: item._id.toString() === id.toString(),
+                hetHang: tongKho <= 0 // Cờ đánh dấu màu này đã hết sạch hàng
             }
         });
 

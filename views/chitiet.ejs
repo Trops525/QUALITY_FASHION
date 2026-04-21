@@ -33,8 +33,8 @@
                         <div class="d-flex gap-2 flex-wrap">
                             <% if (typeof listMauSac !== 'undefined' && listMauSac.length > 0) { %>
                                 <% listMauSac.forEach(item => { %>
-                                    <a href="/sanpham/chitiet/<%= item.id %>" class="text-decoration-none">
-                                        <span class="btn-select <%= item.isActive ? 'active' : 'dashed' %>"><%= item.mauSac %></span>
+                                    <a href="<%= item.hetHang ? 'javascript:void(0)' : '/sanpham/chitiet/' + item.id %>" class="text-decoration-none <%= item.hetHang ? 'disabled-variant' : '' %>" title="<%= item.hetHang ? 'Màu này đã hết hàng' : item.mauSac %>">
+                                        <span class="btn-select <%= item.isActive ? 'active' : 'dashed' %>" style="position: relative;"><%= item.mauSac %></span>
                                     </a>
                                 <% }) %>
                             <% } else { %>
@@ -54,10 +54,19 @@
                         <label class="fw-bold font-13 d-block mb-2">Kích thước:</label>
                         <div class="d-flex gap-2 flex-wrap">
                             <% if (sizes.length > 0) { %>
-                                <% sizes.forEach((s, index) => { %>
-                                    <label class="cursor-pointer m-0">
-                                        <input type="radio" name="kichThuoc" value="<%= s %>" <%= index === 0 ? 'checked' : '' %> class="d-none radio-size">
-                                        <span class="btn-select size-btn <%= index === 0 ? 'active' : '' %>"><%= s %></span>
+                                <% 
+                                    let firstAvailableIndex = sizes.findIndex(s => {
+                                        let v = mangBienThe.find(b => b.kichThuoc === s);
+                                        return v && v.soLuong > 0;
+                                    });
+                                    sizes.forEach((s, index) => { 
+                                        let variant = mangBienThe.find(b => b.kichThuoc === s);
+                                        let outOfStock = !variant || variant.soLuong <= 0;
+                                        let isChecked = index === firstAvailableIndex;
+                                %>
+                                    <label class="cursor-pointer m-0 <%= outOfStock ? 'disabled-variant' : '' %>" title="<%= outOfStock ? 'Hết hàng' : 'Còn ' + (variant ? variant.soLuong : 0) + ' sản phẩm' %>">
+                                        <input type="radio" name="kichThuoc" value="<%= s %>" <%= isChecked ? 'checked' : '' %> <%= outOfStock ? 'disabled' : '' %> class="d-none radio-size" required>
+                                        <span class="btn-select size-btn <%= isChecked ? 'active' : '' %>" style="position: relative;"><%= s %></span>
                                     </label>
                                 <% }) %>
                             <% } else { %>
@@ -66,9 +75,16 @@
                         </div>
                     </div>
 
+                    <% 
+                        let firstAvail = sizes.findIndex(s => {
+                            let v = mangBienThe.find(b => b.kichThuoc === s);
+                            return v && v.soLuong > 0;
+                        });
+                        let hetSachHang = firstAvail === -1;
+                    %>
                     <div class="d-flex gap-3 mb-3">
-                        <button type="submit" name="action" value="add" class="btn-add-cart-outline">THÊM VÀO GIỎ HÀNG</button>
-                        <button type="submit" name="action" value="buy" class="btn-buy-now">MUA NGAY</button>
+                        <button type="submit" name="action" value="add" class="btn-add-cart-outline" <%= hetSachHang ? 'disabled style="cursor:not-allowed; opacity:0.6"' : '' %>><%= hetSachHang ? 'HẾT HÀNG' : 'THÊM VÀO GIỎ HÀNG' %></button>
+                        <button type="submit" name="action" value="buy" class="btn-buy-now" <%= hetSachHang ? 'disabled style="cursor:not-allowed; opacity:0.6"' : '' %>><%= hetSachHang ? 'HẾT HÀNG' : 'MUA NGAY' %></button>
                     </div>
                     <a href="/sanpham" class="text-secondary font-13 text-decoration-none">← Tiếp tục mua sắm sản phẩm </a>
                 </form>

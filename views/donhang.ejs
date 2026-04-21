@@ -17,9 +17,9 @@
         let hienThiDonHang = [];
         if (donHangs && donHangs.length > 0) {
             if (tab === 'history') {
-                hienThiDonHang = donHangs.filter(dh => ['Đã giao', 'Đã hủy', 'Hoàn trả'].includes(dh.tinhTrang));
+                hienThiDonHang = donHangs.filter(dh => ['Đã giao', 'Đã hủy', 'Đã trả hàng', 'Từ chối trả hàng'].includes(dh.tinhTrang));
             } else {
-                hienThiDonHang = donHangs.filter(dh => ['Đang xử lý', 'Đã xác nhận', 'Đang giao'].includes(dh.tinhTrang));
+                hienThiDonHang = donHangs.filter(dh => ['Đang xử lý', 'Đã xác nhận', 'Đang giao', 'Yêu cầu trả hàng'].includes(dh.tinhTrang));
             }
         }
     %>
@@ -29,7 +29,8 @@
             let statusClass = 'status-pending';
             if (dh.tinhTrang === 'Đang giao' || dh.tinhTrang === 'Đã xác nhận') statusClass = 'status-shipping';
             else if (dh.tinhTrang === 'Đã giao') statusClass = 'status-done';
-            else if (dh.tinhTrang === 'Đã hủy' || dh.tinhTrang === 'Hoàn trả') statusClass = 'status-cancel';
+            else if (['Đã hủy', 'Đã trả hàng', 'Từ chối trả hàng'].includes(dh.tinhTrang)) statusClass = 'status-cancel';
+            else if (dh.tinhTrang === 'Yêu cầu trả hàng') statusClass = 'status-pending';
         %>
             <div class="order-card">
                 <div class="order-header">

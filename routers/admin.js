@@ -356,6 +356,25 @@ router.get('/donhang/xacnhan/:id', async (req, res) => {
         if (order && order.tinhTrang === 'Đang xử lý') {
             const items = await ChiTietDonHang.find({ idDonHang: req.params.id });
             
+            // --- BƯỚC 1: KIỂM TRA TỒN KHO TRƯỚC KHI DUYỆT ---
+            let outOfStockItems = [];
+            for (let item of items) {
+                const sp = await SanPham.findById(item.idSanPham);
+                if (sp) {
+                    const variant = sp.bienThe.find(v => v.mauSac === item.mauSac && v.kichThuoc === item.kichThuoc);
+                    if (!variant || variant.soLuong < item.soLuong) {
+                        outOfStockItems.push(`${item.tenSanPham} (${item.mauSac} - ${item.kichThuoc} hiện chỉ còn ${variant ? variant.soLuong : 0})`);
+                    }
+                } else {
+                    outOfStockItems.push(`${item.tenSanPham} (Sản phẩm này đã bị xóa khỏi kho)`);
+                }
+            }
+
+            if (outOfStockItems.length > 0) {
+                return res.send(`<script>alert('Không thể duyệt đơn! Các sản phẩm sau không đủ tồn kho:\\n- ${outOfStockItems.join('\\n- ')}'); window.location.href='/admin/donhang';</script>`);
+            }
+
+            // --- BƯỚC 2: NẾU ĐỦ KHO, TIẾN HÀNH TRỪ KHO VÀ CẬP NHẬT TRẠNG THÁI ---
             for (let item of items) {
                 console.log(`[ADMIN] Đang trừ kho cho SP: ${item.idSanPham}, Màu: ${item.mauSac}, Size: ${item.kichThuoc}, SL: ${item.soLuong}`);
                 const updateResult = await SanPham.findByIdAndUpdate(item.idSanPham, {
@@ -386,6 +405,90 @@ router.get('/donhang/xacnhan/:id', async (req, res) => {
         res.redirect('/admin/donhang');
     }
 });
+
+// GET: Từ chối đơn hàng (Khi đang xử lý)
+router.get('/donhang/tuchoi/:id', async (req, res) => {
+    if (!req.session.QuyenHan || ![1, 3].includes(req.session.QuyenHan)) return res.redirect('/');
+    
+    try {
+        const order = await DonHang.findById(req.params.id);
+        
+        if (order && order.tinhTrang === 'Đang xử lý') {
+            order.tinhTrang = 'Đã hủy'; // Chuyển thành Đã hủy để khách hàng thấy trong Lịch sử
+            order.idNhanVienDuyet = req.session.MaNguoiDung;
+            await order.save();
+            req.session.success = 'Đã từ chối và hủy đơn hàng thành công!';
+        } else {
+            req.session.error = `Đơn hàng đang ở trạng thái "${order ? order.tinhTrang : 'không tồn tại'}", không thể thao tác.`;
+        }
+        res.redirect('/admin/donhang');
+    } catch (err) {
+        console.error("[ADMIN] Lỗi khi từ chối đơn hàng:", err);
+        req.session.error = 'Đã xảy ra lỗi khi từ chối đơn hàng.';
+        res.redirect('/admin/donhang');
+    }
+});
+
+// GET: Xác nhận Khách trả hàng
+router.get('/donhang/xacnhantrahang/:id', async (req, res) => {
+    if (!req.session.QuyenHan || ![1, 3].includes(req.session.QuyenHan)) return res.redirect('/');
+    
+    try {
+        const order = await DonHang.findById(req.params.id);
+        
+        // Chỉ những đơn đã bị trừ kho (Đã xác nhận, Đang giao, Đã giao, Yêu cầu trả hàng) mới cần hoàn lại kho
+        if (order && ['Đã xác nhận', 'Đang giao', 'Đã giao', 'Yêu cầu trả hàng'].includes(order.tinhTrang)) {
+            const items = await ChiTietDonHang.find({ idDonHang: req.params.id });
+            
+            for (let item of items) {
+                console.log(`[ADMIN] Đang hoàn kho (Trả hàng) cho SP: ${item.idSanPham}, Màu: ${item.mauSac}, Size: ${item.kichThuoc}, SL: ${item.soLuong}`);
+                await SanPham.findByIdAndUpdate(item.idSanPham, {
+                    $inc: { 
+                        "bienThe.$[elem].soLuong": item.soLuong, // Cộng lại số lượng tồn kho
+                        "luotMua": -item.soLuong // Trừ đi lượt mua
+                    }
+                }, { arrayFilters: [{ "elem.kichThuoc": item.kichThuoc, "elem.mauSac": item.mauSac }] });
+            }
+            
+            order.tinhTrang = 'Đã trả hàng';
+            order.idNhanVienDuyet = req.session.MaNguoiDung;
+            await order.save();
+            req.session.success = 'Đã duyệt trả hàng, hoàn kho và trừ lượt mua thành công!';
+        } else {
+            req.session.error = `Đơn hàng đang ở trạng thái "${order ? order.tinhTrang : 'không tồn tại'}", không thể thao tác trả hàng.`;
+        }
+        res.redirect('/admin/donhang');
+    } catch (err) {
+        console.error("[ADMIN] Lỗi khi duyệt trả hàng:", err);
+        req.session.error = 'Đã xảy ra lỗi khi thao tác trả hàng.';
+        res.redirect('/admin/donhang');
+    }
+});
+
+// GET: Từ chối yêu cầu trả hàng của Khách
+router.get('/donhang/tuchoitrahang/:id', async (req, res) => {
+    if (!req.session.QuyenHan || ![1, 3].includes(req.session.QuyenHan)) return res.redirect('/');
+    
+    try {
+        const order = await DonHang.findById(req.params.id);
+        
+        if (order && order.tinhTrang === 'Yêu cầu trả hàng') {
+            order.tinhTrang = 'Từ chối trả hàng';
+            order.idNhanVienDuyet = req.session.MaNguoiDung;
+            await order.save();
+            req.session.success = 'Đã từ chối yêu cầu trả hàng của khách thành công!';
+        } else {
+            req.session.error = `Đơn hàng đang ở trạng thái "${order ? order.tinhTrang : 'không tồn tại'}", không thể thao tác.`;
+        }
+        
+        res.redirect('/admin/donhang');
+    } catch (err) {
+        console.error("[ADMIN] Lỗi khi từ chối trả hàng:", err);
+        req.session.error = 'Đã xảy ra lỗi khi thao tác.';
+        res.redirect('/admin/donhang');
+    }
+});
+
 router.get('/donhang/xoa/:id', async (req, res) => {
     try {
         if (!req.session.QuyenHan || ![1, 3].includes(req.session.QuyenHan)) return res.redirect('/');
@@ -431,7 +534,7 @@ router.get('/thongke', async (req, res) => {
         let selectedYear = req.query.year ? parseInt(req.query.year) : currentDate.getFullYear();
         let selectedMonth = req.query.month !== undefined ? parseInt(req.query.month) : currentDate.getMonth() + 1;
 
-        let queryDonHang = { tinhTrang: 'Đã giao' };
+        let queryDonHang = { tinhTrang: { $in: ['Đã giao', 'Từ chối trả hàng'] } };
 
         // Tính toán khoảng thời gian bắt đầu và kết thúc
         if (selectedMonth > 0) { // Lọc theo 1 tháng cụ thể
@@ -446,7 +549,7 @@ router.get('/thongke', async (req, res) => {
 
         const dsDonHang = await DonHang.find(queryDonHang);
         const idsDonHang = dsDonHang.map(dh => dh._id);
-        const chiTiet = await ChiTietDonHang.find({ idDonHang: { $in: idsDonHang } });
+        const chiTiet = await ChiTietDonHang.find({ idDonHang: { $in: idsDonHang } }).populate('idSanPham');
 
         let tongDoanhThu = 0;
         let tongGiaVon = 0;
@@ -461,15 +564,19 @@ router.get('/thongke', async (req, res) => {
             tongGiaVon += giaVon;
             tongSanPhamDaBan += item.soLuong;
 
-            if (!sanPhamBanChayMap[item.idSanPham]) {
-                sanPhamBanChayMap[item.idSanPham] = {
-                    tenSanPham: item.tenSanPham,
+            // Lấy ID và Tên từ Object đã được populate (Nếu sản phẩm đã bị xóa thì để mặc định)
+            let spId = item.idSanPham ? item.idSanPham._id.toString() : item._id.toString();
+            let tenSP = item.idSanPham ? item.idSanPham.tenSanPham : (item.tenSanPham || 'Sản phẩm đã xóa');
+
+            if (!sanPhamBanChayMap[spId]) {
+                sanPhamBanChayMap[spId] = {
+                    tenSanPham: tenSP,
                     soLuongBan: 0,
                     doanhThuMangLai: 0
                 };
             }
-            sanPhamBanChayMap[item.idSanPham].soLuongBan += item.soLuong;
-            sanPhamBanChayMap[item.idSanPham].doanhThuMangLai += doanhThu;
+            sanPhamBanChayMap[spId].soLuongBan += item.soLuong;
+            sanPhamBanChayMap[spId].doanhThuMangLai += doanhThu;
         });
 
         const top10SanPham = Object.values(sanPhamBanChayMap)

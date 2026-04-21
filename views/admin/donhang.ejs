@@ -52,13 +52,21 @@
                                     <a href="/admin/donhang/xacnhan/<%= dh._id %>" 
                                        class="btn-sm btn-confirm" 
                                        onclick="return confirm('Xác nhận cho đi giao đơn hàng này và TRỪ KHO?');">Duyệt</a> 
+                                    <a href="/admin/donhang/tuchoi/<%= dh._id %>" 
+                                       class="btn-sm btn-delete" 
+                                       style="background: #6c757d; border-color: #5a6268;"
+                                       onclick="return confirm('Bạn có chắc chắn muốn TỪ CHỐI và HỦY đơn hàng này?');">Từ chối</a>
                                 <% } %>
                                 
                                 <% if (dh.tinhTrang === 'Yêu cầu trả hàng') { %>
                                     <a href="/admin/donhang/xacnhantrahang/<%= dh._id %>" 
                                        class="btn-sm btn-confirm" 
                                        style="background: #f39c12; border-color: #e67e22;"
-                                       onclick="return confirm('Xác nhận nhận lại hàng, CỘNG LẠI KHO và TRỪ LƯỢT MUA?');">Duyệt trả hàng</a> 
+                                       onclick="return confirm('Xác nhận nhận lại hàng, CỘNG LẠI KHO và TRỪ LƯỢT MUA?');">Duyệt</a> 
+                                    <a href="/admin/donhang/tuchoitrahang/<%= dh._id %>" 
+                                       class="btn-sm btn-delete" 
+                                       style="background: #6c757d; border-color: #5a6268;"
+                                       onclick="return confirm('Bạn có chắc chắn muốn TỪ CHỐI yêu cầu trả hàng của khách? (Sản phẩm sẽ không được cộng lại kho)');">Từ chối</a>
                                 <% } %>
 
                                 <a href="/admin/donhang/xoa/<%= dh._id %>" 

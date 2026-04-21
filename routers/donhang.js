@@ -47,7 +47,7 @@ router.get('/', async (req, res) => {
     let condition = { idNguoiDung: userId };
     if (tab === 'history') {
         // Tab Lịch sử: Hiện đơn đã kết thúc
-        condition.tinhTrang = { $in: ['Đã giao', 'Đã hủy', 'Hoàn trả', 'Từ chối trả hàng'] };
+        condition.tinhTrang = { $in: ['Đã giao', 'Đã hủy', 'Đã trả hàng', 'Từ chối trả hàng'] };
     } else {
         // Tab Đơn hàng: Hiện các đơn đang chạy (THÊM 'Đã xác nhận' VÀO ĐÂY)
         condition.tinhTrang = { $in: ['Đang xử lý', 'Đã xác nhận', 'Đang giao', 'Yêu cầu trả hàng'] };

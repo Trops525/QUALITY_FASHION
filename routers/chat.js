@@ -69,11 +69,31 @@ router.get('/', async (req, res) => {
         if (search) {
             const kw = search.toLowerCase();
             danhSachChat = danhSachChat.filter(c => {
-                const ten = (c.idNguoiGui && (c.idNguoiGui.HoTen || c.idNguoiGui.hoTen)) ? (c.idNguoiGui.HoTen || c.idNguoiGui.hoTen) : '';
+                const ten = (c.idNguoiGui && (c.idNguoiGui.HoTen || c.idNguoiGui.hoTen)) ? (c.idNguoiGui.HoTen || c.idNguoiGui.hoTen).toLowerCase() : '';
                 const sdt = (c.idNguoiGui && c.idNguoiGui.DienThoai) ? c.idNguoiGui.DienThoai : '';
-                const email = (c.idNguoiGui && c.idNguoiGui.Email) ? c.idNguoiGui.Email : '';
-                const tk = (c.idNguoiGui && c.idNguoiGui.TenDangNhap) ? c.idNguoiGui.TenDangNhap : '';
-                return ten.toLowerCase().includes(kw) || sdt.includes(kw) || email.toLowerCase().includes(kw) || tk.toLowerCase().includes(kw);
+                const email = (c.idNguoiGui && c.idNguoiGui.Email) ? c.idNguoiGui.Email.toLowerCase() : '';
+                const tk = (c.idNguoiGui && c.idNguoiGui.TenDangNhap) ? c.idNguoiGui.TenDangNhap.toLowerCase() : '';
+                return ten.includes(kw) || sdt.includes(kw) || email.includes(kw) || tk.includes(kw);
+            });
+
+            // Tìm kiếm thêm trong bảng NguoiDung để admin có thể chủ động nhắn tin
+            const regexSearch = new RegExp(search, 'i');
+            const usersFound = await NguoiDung.find({
+                $or: [
+                    { HoTen: regexSearch },
+                    { DienThoai: regexSearch },
+                    { Email: regexSearch },
+                    { TenDangNhap: regexSearch }
+                ]
+            });
+
+            usersFound.forEach(user => {
+                const userIdStr = user._id.toString();
+                // Nếu người dùng này chưa có trong danh sách chat
+                if (!daXuatHien.has(userIdStr)) {
+                    daXuatHien.add(userIdStr);
+                    danhSachChat.push({ idNguoiGui: user, isAnswered: true, noiDung: 'Chưa có tin nhắn...' });
+                }
             });
         }
 
@@ -146,11 +166,30 @@ router.get('/:idKhachHang', async (req, res) => {
         if (search) {
             const kw = search.toLowerCase();
             danhSachChat = danhSachChat.filter(c => {
-                const ten = (c.idNguoiGui && (c.idNguoiGui.HoTen || c.idNguoiGui.hoTen)) ? (c.idNguoiGui.HoTen || c.idNguoiGui.hoTen) : '';
+                const ten = (c.idNguoiGui && (c.idNguoiGui.HoTen || c.idNguoiGui.hoTen)) ? (c.idNguoiGui.HoTen || c.idNguoiGui.hoTen).toLowerCase() : '';
                 const sdt = (c.idNguoiGui && c.idNguoiGui.DienThoai) ? c.idNguoiGui.DienThoai : '';
-                const email = (c.idNguoiGui && c.idNguoiGui.Email) ? c.idNguoiGui.Email : '';
-                const tk = (c.idNguoiGui && c.idNguoiGui.TenDangNhap) ? c.idNguoiGui.TenDangNhap : '';
-                return ten.toLowerCase().includes(kw) || sdt.includes(kw) || email.toLowerCase().includes(kw) || tk.toLowerCase().includes(kw);
+                const email = (c.idNguoiGui && c.idNguoiGui.Email) ? c.idNguoiGui.Email.toLowerCase() : '';
+                const tk = (c.idNguoiGui && c.idNguoiGui.TenDangNhap) ? c.idNguoiGui.TenDangNhap.toLowerCase() : '';
+                return ten.includes(kw) || sdt.includes(kw) || email.includes(kw) || tk.includes(kw);
+            });
+
+            // Tìm kiếm thêm trong bảng NguoiDung để admin có thể chủ động nhắn tin
+            const regexSearch = new RegExp(search, 'i');
+            const usersFound = await NguoiDung.find({
+                $or: [
+                    { HoTen: regexSearch },
+                    { DienThoai: regexSearch },
+                    { Email: regexSearch },
+                    { TenDangNhap: regexSearch }
+                ]
+            });
+
+            usersFound.forEach(user => {
+                const userIdStr = user._id.toString();
+                if (!daXuatHien.has(userIdStr)) {
+                    daXuatHien.add(userIdStr);
+                    danhSachChat.push({ idNguoiGui: user, isAnswered: true, noiDung: 'Chưa có tin nhắn...' });
+                }
             });
         }
 

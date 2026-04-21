@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const cloudinary = require('cloudinary').v2;
 const path = require('path');
 
-// Import các model của Quân
+// Import các model 
 const SanPham = require('./models/sanpham'); 
 const ChiTietDonHang = require('./models/chitietdonhang'); 
 const DonHang = require('./models/donhang');
