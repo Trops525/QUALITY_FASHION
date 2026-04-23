@@ -52,7 +52,6 @@ router.post('/', async (req, res) => {
                 let gia = sp.donGia - (sp.donGia * (sp.tiLeGiamGia || 0) / 100);
                 total += gia * cart[key];
                 
-                // LƯU Ý: Thêm sp.giaNhap vào đây để dùng ở bước sau
                 orderDetails.push({ 
                     id, 
                     mau, 

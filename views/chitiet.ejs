@@ -61,10 +61,11 @@
                                         return mangBienThe.some(b => b.kichThuoc === s && b.soLuong > 0);
                                     });
                                     sizes.forEach((s, index) => { 
-                                        let outOfStock = !mangBienThe.some(b => b.kichThuoc === s && b.soLuong > 0);
+                                        let totalSizeStock = mangBienThe.reduce((sum, b) => b.kichThuoc === s ? sum + b.soLuong : sum, 0);
+                                        let outOfStock = totalSizeStock <= 0;
                                         let isChecked = index === firstAvailableIndex;
                                 %>
-                                    <label class="cursor-pointer m-0 <%= outOfStock ? 'disabled-variant' : '' %>" title="<%= outOfStock ? 'Hết hàng' : 'Còn ' + (variant ? variant.soLuong : 0) + ' sản phẩm' %>">
+                                    <label class="cursor-pointer m-0 <%= outOfStock ? 'disabled-variant' : '' %>" title="<%= outOfStock ? 'Hết hàng' : 'Còn ' + totalSizeStock + ' sản phẩm' %>">
                                         <input type="radio" name="kichThuoc" value="<%= s %>" <%= isChecked ? 'checked' : '' %> <%= outOfStock ? 'disabled' : '' %> class="d-none radio-size" required>
                                         <span class="btn-select size-btn <%= isChecked ? 'active' : '' %>" style="position: relative;"><%= s %></span>
                                     </label>
@@ -81,6 +82,16 @@
                         });
                         let hetSachHang = firstAvail === -1;
                     %>
+
+                    <div class="mb-4 d-flex align-items-center gap-3">
+                        <label class="fw-bold font-13 m-0">Số lượng:</label>
+                        <div class="input-group input-group-sm" style="width: 120px;">
+                            <button class="btn btn-outline-secondary px-2" type="button" onclick="this.parentNode.querySelector('input[type=number]').stepDown()">-</button>
+                            <input type="number" name="soLuong" id="inputSoLuong" class="form-control text-center px-1 border-secondary" value="1" min="1" required>
+                            <button class="btn btn-outline-secondary px-2" type="button" onclick="this.parentNode.querySelector('input[type=number]').stepUp()">+</button>
+                        </div>
+                    </div>
+
                     <div class="d-flex gap-3 mb-3">
                         <button type="submit" name="action" value="add" class="btn-add-cart-outline" <%= hetSachHang ? 'disabled style="cursor:not-allowed; opacity:0.6"' : '' %>><%= hetSachHang ? 'HẾT HÀNG' : 'THÊM VÀO GIỎ HÀNG' %></button>
                         <button type="submit" name="action" value="buy" class="btn-buy-now" <%= hetSachHang ? 'disabled style="cursor:not-allowed; opacity:0.6"' : '' %>><%= hetSachHang ? 'HẾT HÀNG' : 'MUA NGAY' %></button>
@@ -200,7 +211,21 @@
                         const variant = bienThe.find(v => v.kichThuoc === size && v.mauSac === color) 
                                      || bienThe.find(v => v.kichThuoc === size);
                         
-                        quantityDisplay.textContent = variant ? variant.soLuong : '0';
+                        let stock = variant ? variant.soLuong : 0;
+                        quantityDisplay.textContent = stock;
+                        
+                        const inputSoLuong = document.getElementById('inputSoLuong');
+                        if (inputSoLuong) {
+                            inputSoLuong.max = stock; // Không cho nhập quá số lượng tồn kho
+                            if (parseInt(inputSoLuong.value) > stock) {
+                                inputSoLuong.value = stock;
+                            }
+                            if (stock === 0) {
+                                inputSoLuong.value = 0;
+                            } else if (parseInt(inputSoLuong.value) === 0) {
+                                inputSoLuong.value = 1;
+                            }
+                        }
                     }
                 }
 
