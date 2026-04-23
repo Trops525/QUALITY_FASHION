@@ -151,7 +151,7 @@ router.post('/sanpham/them', upload.single('hinh_anh'), async (req, res) => {
     try {
         if (!req.session.QuyenHan || ![1, 3].includes(req.session.QuyenHan)) return res.redirect('/');
 
-        // BỔ SUNG: Kiểm tra trùng mã sản phẩm trước khi làm bất cứ việc gì khác
+        // Kiểm tra trùng mã sản phẩm 
         const { ma_san_pham } = req.body;
         const checkTonTai = await SanPham.findOne({ maSanPham: ma_san_pham });
         if (checkTonTai) {

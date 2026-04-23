@@ -5,7 +5,7 @@
             // 1. Tính giá bán sau giảm giá
             let giaBan = sanpham.donGia - (sanpham.donGia * (sanpham.tiLeGiamGia || 0) / 100);
             
-            let mangBienThe = sanpham.bienThe ;
+            let mangBienThe = sanpham.bienThe || [];
             let sizes = [...new Set(mangBienThe.map(b => b.kichThuoc))]; 
 
             // 3. Xử lý đường dẫn ảnh 
@@ -57,12 +57,11 @@
                             <% if (sizes.length > 0) { %>
                                 <% 
                                     let firstAvailableIndex = sizes.findIndex(s => {
-                                        let v = mangBienThe.find(b => b.kichThuoc === s);
-                                        return v && v.soLuong > 0;
+                                        //  Dùng some() để kiểm tra có MỘT màu nào đó của size này còn hàng không
+                                        return mangBienThe.some(b => b.kichThuoc === s && b.soLuong > 0);
                                     });
                                     sizes.forEach((s, index) => { 
-                                        let variant = mangBienThe.find(b => b.kichThuoc === s);
-                                        let outOfStock = !variant || variant.soLuong <= 0;
+                                        let outOfStock = !mangBienThe.some(b => b.kichThuoc === s && b.soLuong > 0);
                                         let isChecked = index === firstAvailableIndex;
                                 %>
                                     <label class="cursor-pointer m-0 <%= outOfStock ? 'disabled-variant' : '' %>" title="<%= outOfStock ? 'Hết hàng' : 'Còn ' + (variant ? variant.soLuong : 0) + ' sản phẩm' %>">
@@ -78,8 +77,7 @@
 
                     <% 
                         let firstAvail = sizes.findIndex(s => {
-                            let v = mangBienThe.find(b => b.kichThuoc === s);
-                            return v && v.soLuong > 0;
+                            return mangBienThe.some(b => b.kichThuoc === s && b.soLuong > 0);
                         });
                         let hetSachHang = firstAvail === -1;
                     %>

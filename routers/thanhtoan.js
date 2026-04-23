@@ -35,7 +35,7 @@ router.get('/', async (req, res) => {
     });
 });
 
-// POST: Xử lý đặt hàng - PHẦN QUÂN CẦN SỬA
+// POST: Xử lý đặt hàng
 router.post('/', async (req, res) => {
     try {
         let { diaChi, dienThoai, ghiChu, phuongThuc, checkout_type } = req.body;
@@ -76,7 +76,7 @@ router.post('/', async (req, res) => {
         phuongThucThanhToan: phuongThuc
     });
 
-        // 3. Lưu Chi tiết đơn hàng (Đã bổ sung giaNhap)
+        // 3. Lưu Chi tiết đơn hàng 
         for (let item of orderDetails) {
             await ChiTietDonHang.create({
                 idDonHang: moi._id, 

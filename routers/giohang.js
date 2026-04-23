@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var SanPham = require('../models/sanpham');
 
-// 1. POST: XỬ LÝ THÊM VÀO GIỎ / MUA NGAY (Dịch từ add_to_cart.php)
+// 1. POST: XỬ LÝ THÊM VÀO GIỎ / MUA NGAY 
 router.post('/them', async (req, res) => { // Make it async
     // 1. Kiểm tra đăng nhập
     if (!req.session || !req.session.MaNguoiDung) {
@@ -95,7 +95,7 @@ router.post('/them', async (req, res) => { // Make it async
     }
 });
 
-// 2. GET: HIỂN THỊ TRANG GIỎ HÀNG (Dịch từ phần đầu của cart.php)
+// 2. GET: HIỂN THỊ TRANG GIỎ HÀNG
 router.get('/', async (req, res) => {
     if (!req.session || !req.session.MaNguoiDung) {
         return res.redirect('/dangnhap');

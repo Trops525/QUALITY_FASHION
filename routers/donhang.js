@@ -49,7 +49,7 @@ router.get('/', async (req, res) => {
         // Tab Lịch sử: Hiện đơn đã kết thúc
         condition.tinhTrang = { $in: ['Đã giao', 'Đã hủy', 'Đã trả hàng', 'Từ chối trả hàng'] };
     } else {
-        // Tab Đơn hàng: Hiện các đơn đang chạy (THÊM 'Đã xác nhận' VÀO ĐÂY)
+        // Tab Đơn hàng: Hiện các đơn đang chạy 
         condition.tinhTrang = { $in: ['Đang xử lý', 'Đã xác nhận', 'Đang giao', 'Yêu cầu trả hàng'] };
     }
 

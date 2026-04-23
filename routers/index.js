@@ -6,7 +6,7 @@ const Banner = require('../models/banner');
 // GET: Xử lý hiển thị Trang chủ
 router.get('/', async (req, res) => {
     try {
-        // 1. Lấy các tham số từ URL (giống $_GET trong PHP)
+        // 1. Lấy các tham số từ URL 
         const page = parseInt(req.query.page) || 1;
         const limit = 12; // Hiển thị 12 sản phẩm mỗi trang như file cũ
         const q = req.query.q ? req.query.q.trim() : '';
