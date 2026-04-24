@@ -127,7 +127,7 @@ router.get('/:idKhachHang', async (req, res) => {
             ]
         }).sort({ createdAt: 1 });
 
-        // TƯƠNG TỰ BƯỚC TRÊN: Xử lý danh sách Sidebar kèm bộ Lọc & Tìm kiếm
+        // Xử lý danh sách Sidebar kèm bộ Lọc & Tìm kiếm
         const { filter, search } = req.query;
         const tatCaTinNhan = await TinNhan.find().populate('idNguoiGui').sort({ createdAt: -1 });
 

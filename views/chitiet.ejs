@@ -232,6 +232,28 @@
                 sizeRadios.forEach(radio => radio.addEventListener('change', updateQuantityAndUI));
                 updateQuantityAndUI();
             });
+            
+            // Bắt thông báo từ Server và hiển thị Popup (SweetAlert)
+            document.addEventListener('DOMContentLoaded', function() {
+                let flashMessage = `<%- typeof message !== 'undefined' ? message : '' %>`;
+                
+                if (flashMessage.trim() !== '') {
+                    let isSuccess = flashMessage.includes('text-success'); // Phân biệt thông báo Lỗi hay Thành công
+                    let rawText = flashMessage.replace(/<[^>]*>?/gm, ''); // Lọc bỏ thẻ HTML (span) để lấy chữ
+                    
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: isSuccess ? 'success' : 'error',
+                            title: isSuccess ? 'Thành công!' : 'Thông báo',
+                            text: rawText,
+                            showConfirmButton: false,
+                            timer: 2000
+                        });
+                    } else {
+                        alert(rawText);
+                    }
+                }
+            });
         </script>
 
         <% } else { %>

@@ -17,9 +17,9 @@
         let hienThiDonHang = [];
         if (donHangs && donHangs.length > 0) {
             if (tab === 'history') {
-                hienThiDonHang = donHangs.filter(dh => ['Đã giao', 'Đã hủy', 'Đã trả hàng', 'Từ chối trả hàng'].includes(dh.tinhTrang));
+                hienThiDonHang = donHangs.filter(dh => ['Đã giao', 'Đã hủy', 'Đã trả hàng', 'Từ chối trả hàng', 'Yêu cầu trả hàng'].includes(dh.tinhTrang));
             } else {
-                hienThiDonHang = donHangs.filter(dh => ['Đang xử lý', 'Đã xác nhận', 'Đang giao', 'Yêu cầu trả hàng'].includes(dh.tinhTrang));
+                hienThiDonHang = donHangs.filter(dh => ['Đang xử lý', 'Đã xác nhận', 'Đang giao'].includes(dh.tinhTrang));
             }
         }
     %>
@@ -38,7 +38,7 @@
                         <strong class="d-block" style="font-size: 14px;">Đơn hàng #<%= dh._id.toString().substring(0, 8).toUpperCase() %></strong>
                         <small class="text-muted">Ngày đặt: <%= new Date(dh.ngayDat).toLocaleString('vi-VN') %></small>
                     </div>
-                    <div class="order-status <%= statusClass %>"><%= dh.tinhTrang %></div>
+                    <div class="order-status <%= statusClass %>"><%= dh.tinhTrang === 'Yêu cầu trả hàng' ? 'Đang chờ duyệt trả hàng' : dh.tinhTrang %></div>
                 </div>
 
                 <div>

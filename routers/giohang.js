@@ -23,17 +23,13 @@ router.post('/them', async (req, res) => { // Make it async
     const selectedMauSac = req.body.mauSac; // Màu sắc người dùng chọn từ form
     const selectedKichThuoc = req.body.kichThuoc; // Kích thước người dùng chọn từ form
     let action = req.body.action; // 'add' hoặc 'buy'
-    let quantityToAdd = parseInt(req.body.soLuong) || 1; // Lấy số lượng từ form gửi lên, mặc định là 1 nếu trống
+    const soLuong = parseInt(req.body.soLuong) || 1; // Lấy số lượng từ form gửi lên, mặc định là 1 nếu lỗi
 
     try {
         const sp = await SanPham.findById(idSanPham);
         if (!sp) {
-            return res.send(`
-                <script>
-                    alert("Sản phẩm không tồn tại.");
-                    window.location.href = "/sanpham";
-                </script>
-            `);
+            req.session.error = 'Sản phẩm không tồn tại.';
+            return res.redirect(req.header('Referer') || '/sanpham');
         }
 
         let actualMauSac = '';
@@ -58,12 +54,8 @@ router.post('/them', async (req, res) => { // Make it async
         }
 
         if (!foundVariant) {
-            return res.send(`
-                <script>
-                    alert("Vui lòng chọn màu sắc và kích thước hợp lệ.");
-                    window.location.href = "/sanpham/chitiet/${idSanPham}";
-                </script>
-            `);
+            req.session.error = 'Vui lòng chọn màu sắc và kích thước hợp lệ.';
+            return res.redirect(req.header('Referer') || '/sanpham/chitiet/' + idSanPham);
         }
 
         actualMauSac = foundVariant.mauSac;
@@ -71,12 +63,8 @@ router.post('/them', async (req, res) => { // Make it async
 
         // Kiểm tra số lượng tồn kho trước khi thêm vào giỏ
         if (foundVariant.soLuong <= 0) {
-            return res.send(`
-                <script>
-                    alert("Sản phẩm này hiện đã hết hàng.");
-                    window.location.href = "/sanpham/chitiet/${idSanPham}";
-                </script>
-            `);
+            req.session.error = 'Sản phẩm này hiện đã hết hàng.';
+            return res.redirect(req.header('Referer') || '/sanpham/chitiet/' + idSanPham);
         }
 
         // Tạo Key giỏ hàng: ID_Màu_Size (Sử dụng giá trị thực tế từ biến thể)
@@ -85,7 +73,7 @@ router.post('/them', async (req, res) => { // Make it async
     // XỬ LÝ: MUA NGAY
     if (action === 'buy') {
         req.session.buy_now_cart = {};
-        req.session.buy_now_cart[cartKey] = quantityToAdd > foundVariant.soLuong ? foundVariant.soLuong : quantityToAdd; // Kiểm tra số lượng
+        req.session.buy_now_cart[cartKey] = soLuong; // Gán đúng số lượng khách chọn
         return res.redirect('/thanhtoan?type=buynow');
     }
 
@@ -94,28 +82,17 @@ router.post('/them', async (req, res) => { // Make it async
         req.session.cart = {};
     }
     if (req.session.cart[cartKey]) {
-        req.session.cart[cartKey] += quantityToAdd; // Cộng dồn số lượng
-        if (req.session.cart[cartKey] > foundVariant.soLuong) {
-            req.session.cart[cartKey] = foundVariant.soLuong; // Tránh cộng dồn vượt quá tồn kho
-        }
+        req.session.cart[cartKey] += soLuong; // Cộng dồn số lượng khách chọn
     } else {
-        req.session.cart[cartKey] = quantityToAdd > foundVariant.soLuong ? foundVariant.soLuong : quantityToAdd;  // Thêm mới
+        req.session.cart[cartKey] = soLuong;  // Thêm mới số lượng khách chọn
     }
-        return res.send(`
-            <script>
-                alert("Đã thêm sản phẩm vào giỏ hàng thành công!");
-                window.location.href = "/sanpham/chitiet/${idSanPham}";
-            </script>
-        `);
+        req.session.success = 'Đã thêm sản phẩm vào giỏ hàng!';
+        res.redirect('/sanpham/chitiet/' + idSanPham);
 
     } catch (err) {
         console.error("Lỗi khi thêm vào giỏ hàng:", err);
-        return res.send(`
-            <script>
-                alert("Đã xảy ra lỗi khi thêm sản phẩm vào giỏ hàng.");
-                window.location.href = "/sanpham";
-            </script>
-        `);
+        req.session.error = 'Đã xảy ra lỗi khi thêm sản phẩm vào giỏ hàng.';
+        res.redirect(req.header('Referer') || '/sanpham');
     }
 });
 

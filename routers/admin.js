@@ -534,7 +534,7 @@ router.get('/thongke', async (req, res) => {
         let selectedYear = req.query.year ? parseInt(req.query.year) : currentDate.getFullYear();
         let selectedMonth = req.query.month !== undefined ? parseInt(req.query.month) : currentDate.getMonth() + 1;
 
-        let queryDonHang = { tinhTrang: { $in: ['Đã giao', 'Từ chối trả hàng'] } };
+        let queryDonHang = { tinhTrang: { $in: ['Đã giao', 'Từ chối trả hàng', 'Yêu cầu trả hàng'] } };
 
         // Tính toán khoảng thời gian bắt đầu và kết thúc
         if (selectedMonth > 0) { // Lọc theo 1 tháng cụ thể
